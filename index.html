@@ -8,326 +8,123 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0a0a0c;
-      --surface: #111115;
-      --border: #1e1e26;
-      --accent: #c6ec31;
-      --accent-dim: rgba(198,236,49,0.15);
-      --text: #e8e8f0;
-      --dim: #555566;
-      --red: #ff4444;
+      --bg: #0a0a0c; --surface: #111115; --border: #1e1e26;
+      --accent: #c6ec31; --accent-dim: rgba(198,236,49,0.15);
+      --text: #e8e8f0; --dim: #555566; --red: #ff4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow: hidden; }
-
-    /* ── TOPBAR ── */
-    .topbar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      height: 52px; padding: 0 20px;
-      display: flex; align-items: center; gap: 12px;
-      position: relative; z-index: 50;
-    }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 52px; padding: 0 20px; display: flex; align-items: center; gap: 12px; position: relative; z-index: 50; }
     .brand { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--accent); }
     .brand span { color: var(--dim); }
     .topbar-mid { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-
-    /* mode tabs */
     .mode-tabs { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 3px; gap: 3px; }
-    .m-tab {
-      padding: 5px 14px; border: none; border-radius: 5px;
-      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
-      text-transform: uppercase; cursor: pointer;
-      background: transparent; color: var(--dim); transition: all .2s;
-    }
+    .m-tab { padding: 5px 14px; border: none; border-radius: 5px; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; background: transparent; color: var(--dim); transition: all .2s; }
     .m-tab.on { background: var(--accent); color: #000; font-weight: 700; }
-
-    .ble-btn {
-      display: flex; align-items: center; gap: 7px;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text); border-radius: 6px; padding: 5px 12px;
-      font-family: 'Space Mono', monospace; font-size: 11px;
-      cursor: pointer; transition: all .2s; margin-left: 10px;
-    }
+    .ble-btn { display: flex; align-items: center; gap: 7px; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 6px; padding: 5px 12px; font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; transition: all .2s; margin-left: 10px; }
     .ble-btn:hover { border-color: var(--accent); color: var(--accent); }
     .ble-btn.connected { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
     .ble-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); transition: background .3s; }
     .ble-btn.connected .ble-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: blink 2s infinite; }
     .ble-btn.scanning .ble-dot { background: #ffaa00; animation: blink .5s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    /* ── LAYOUT ── */
     .main { display: flex; height: calc(100vh - 52px); }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 300px; flex-shrink: 0;
-      background: var(--surface); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
-    }
+    .sidebar { width: 300px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
     .sb { padding: 14px 16px; border-bottom: 1px solid var(--border); }
     .lbl { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; margin-bottom: 9px; }
-
-    textarea#scriptInput {
-      width: 100%; height: 140px; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 6px; color: var(--text); font-family: 'DM Sans', sans-serif;
-      font-size: 13px; padding: 9px; resize: none; outline: none; transition: border-color .2s;
-    }
+    textarea#scriptInput { width: 100%; height: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px; resize: none; outline: none; transition: border-color .2s; }
     textarea#scriptInput:focus { border-color: var(--accent); }
     textarea#scriptInput::placeholder { color: var(--dim); }
     .brow { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-
-    .btn-a {
-      background: var(--accent); border: none; color: #000;
-      font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
-      padding: 7px 14px; border-radius: 5px; cursor: pointer; transition: opacity .2s; letter-spacing: 1px;
-    }
+    .btn-a { background: var(--accent); border: none; color: #000; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 5px; cursor: pointer; transition: opacity .2s; letter-spacing: 1px; }
     .btn-a:hover { opacity: .85; }
-    .btn-g {
-      background: transparent; border: 1px solid var(--border); color: var(--dim);
-      font-family: 'Space Mono', monospace; font-size: 11px;
-      padding: 7px 14px; border-radius: 5px; cursor: pointer; transition: all .2s;
-    }
+    .btn-g { background: transparent; border: 1px solid var(--border); color: var(--dim); font-family: 'Space Mono', monospace; font-size: 11px; padding: 7px 14px; border-radius: 5px; cursor: pointer; transition: all .2s; }
     .btn-g:hover { border-color: var(--dim); color: var(--text); }
-
-    /* ── SPEED CONTROL ── */
     .speed-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-    .speed-display {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
-    }
-    .speed-num {
-      font-family: 'Bebas Neue', sans-serif; font-size: 42px;
-      color: var(--accent); line-height: 1; letter-spacing: 2px;
-    }
+    .speed-display { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .speed-num { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--accent); line-height: 1; letter-spacing: 2px; }
     .speed-unit { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--dim); }
     .speed-btns { display: flex; gap: 4px; }
-    .spd-btn {
-      width: 36px; height: 36px; border-radius: 6px;
-      border: 1px solid var(--border); background: var(--bg);
-      color: var(--text); font-size: 18px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .15s; user-select: none;
-    }
+    .spd-btn { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; user-select: none; }
     .spd-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
     .spd-btn:active { transform: scale(.92); }
-
-    /* Fine speed slider */
     .fine-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .fine-lbl { font-size: 11px; color: var(--dim); width: 30px; flex-shrink: 0; }
-    input[type=range] {
-      flex: 1; -webkit-appearance: none; height: 3px;
-      background: var(--border); border-radius: 2px; outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px;
-      background: var(--accent); border-radius: 50%; cursor: pointer;
-      box-shadow: 0 0 0 3px var(--accent-dim);
-    }
-
-    /* ── OTHER CONTROLS ── */
+    input[type=range] { flex: 1; -webkit-appearance: none; height: 3px; background: var(--border); border-radius: 2px; outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; box-shadow: 0 0 0 3px var(--accent-dim); }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
     .ctrl-lbl { font-size: 12px; color: var(--dim); width: 80px; flex-shrink: 0; }
     .ctrl-val { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); width: 36px; text-align: right; flex-shrink: 0; }
-
     .tog-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     .tog-txt { font-size: 13px; }
     .tog { position: relative; width: 38px; height: 21px; }
     .tog input { opacity: 0; width: 0; height: 0; }
-    .tog .sl {
-      position: absolute; cursor: pointer; inset: 0;
-      background: var(--border); border-radius: 21px; transition: .3s;
-    }
-    .tog .sl:before {
-      content: ''; position: absolute;
-      width: 15px; height: 15px; left: 3px; bottom: 3px;
-      background: var(--dim); border-radius: 50%; transition: .3s;
-    }
+    .tog .sl { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 21px; transition: .3s; }
+    .tog .sl:before { content: ''; position: absolute; width: 15px; height: 15px; left: 3px; bottom: 3px; background: var(--dim); border-radius: 50%; transition: .3s; }
     .tog input:checked + .sl { background: var(--accent-dim); border: 1px solid var(--accent); }
     .tog input:checked + .sl:before { transform: translateX(17px); background: var(--accent); }
-
-    /* Palette */
     .palette { display: flex; gap: 7px; flex-wrap: wrap; }
-    .swatch {
-      width: 30px; height: 30px; border-radius: 5px;
-      cursor: pointer; border: 2px solid transparent;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 700; transition: all .15s;
-    }
+    .swatch { width: 30px; height: 30px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: all .15s; }
     .swatch:hover { transform: scale(1.12); }
     .swatch.on { border-color: var(--accent) !important; box-shadow: 0 0 10px var(--accent-dim); }
-
-    /* Ticker position + marker controls */
     .ticker-controls { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-
-    .mini-preview {
-      position: relative; height: 60px;
-      background: #000; border-radius: 6px; overflow: hidden;
-      border: 1px solid var(--border); margin-bottom: 10px; cursor: default;
-    }
-    /* line indicator */
-    .mini-line {
-      position: absolute; left: 0; right: 0; height: 2px;
-      background: rgba(198,236,49,.5);
-      transition: top .1s;
-    }
-    /* L marker in preview */
-    .mini-mL {
-      position: absolute; top: 0; bottom: 0; width: 2px;
-      background: rgba(255,100,100,.7);
-    }
-    /* R marker in preview */
-    .mini-mR {
-      position: absolute; top: 0; bottom: 0; width: 2px;
-      background: rgba(100,180,255,.7);
-    }
-
-    /* Key map */
+    .mini-preview { position: relative; height: 60px; background: #000; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 10px; }
+    .mini-line { position: absolute; left: 0; right: 0; height: 2px; background: rgba(198,236,49,.5); transition: top .1s; }
+    .mini-mL { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,100,100,.7); }
+    .mini-mR { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(100,180,255,.7); }
     .remote-map { padding: 14px 16px; flex: 1; }
     .key-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
     .key-item { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
     .kbadge { font-family: 'Space Mono', monospace; font-size: 8px; background: var(--accent-dim); color: var(--accent); border-radius: 3px; padding: 2px 4px; white-space: nowrap; flex-shrink: 0; }
     .kact { font-size: 10px; color: var(--dim); }
-
-    /* ── PROMPTER AREA ── */
-    .prompter-area {
-      flex: 1; position: relative; overflow: hidden;
-      background: #000; display: flex; flex-direction: column;
-    }
-
-    /* ── VERTICAL MODE ── */
+    .prompter-area { flex: 1; position: relative; overflow: hidden; background: #000; display: flex; flex-direction: column; }
     .v-mode { flex: 1; overflow: hidden; position: relative; }
-    .v-fade-t, .v-fade-b {
-      position: absolute; left: 0; right: 0; height: 90px;
-      z-index: 10; pointer-events: none;
-    }
-    .v-fade-t { top: 0; }
-    .v-fade-b { bottom: 0; }
+    .v-fade-t, .v-fade-b { position: absolute; left: 0; right: 0; height: 90px; z-index: 10; pointer-events: none; }
+    .v-fade-t { top: 0; } .v-fade-b { bottom: 0; }
     .v-scroll { will-change: transform; padding: 50vh 8% 50vh; }
-    .v-text {
-      font-family: 'DM Sans', sans-serif; font-size: 52px;
-      line-height: 1.45; color: #fff; white-space: pre-wrap; word-break: break-word;
-    }
-    .v-text.mirror { transform: scaleX(-1); }
-
-    /* ── TICKER MODE ── */
-    .t-mode {
-      flex: 1; position: relative; overflow: hidden;
-      display: none; flex-direction: column;
-    }
+    .v-text { font-family: 'DM Sans', sans-serif; font-size: 52px; line-height: 1.45; color: #fff; white-space: pre-wrap; word-break: break-word; }
+    /* FIX: Mirror vertical - whole container flips */
+    .v-mode.mirror { transform: scaleX(-1); }
+    .t-mode { flex: 1; position: relative; overflow: hidden; display: none; flex-direction: column; }
     .t-mode.on { display: flex; }
-
-    /* The ticker line container — draggable top position */
-    .t-line-wrap {
-      position: absolute; left: 0; right: 0;
-      display: flex; align-items: center;
-      overflow: hidden;
-      /* height = font size + padding */
-      height: 110px;
-      transition: top .05s;
-    }
-
-    /* Left/right gradient fades inside ticker */
-    .t-fade-l, .t-fade-r {
-      position: absolute; top: 0; bottom: 0; width: 120px;
-      z-index: 5; pointer-events: none;
-    }
-    .t-fade-l { left: 0; }
-    .t-fade-r { right: 0; }
-
-    /* Left marker — draggable */
-    .marker-left, .marker-right {
-      position: absolute; top: 0; bottom: 0;
-      width: 3px; z-index: 20; cursor: ew-resize;
-    }
-    .marker-left { background: rgba(255,90,90,.85); }
-    .marker-right { background: rgba(90,180,255,.85); }
-
-    /* Marker handle grab zone */
-    .marker-left::before, .marker-right::before {
-      content: '';
-      position: absolute; top: 0; bottom: 0;
-      left: -8px; right: -8px;
-    }
-    /* Marker label */
-    .marker-left::after {
-      content: 'L';
-      position: absolute; top: 4px; left: 4px;
-      font-family: 'Space Mono', monospace; font-size: 10px;
-      color: rgba(255,90,90,.9); font-weight: 700;
-    }
-    .marker-right::after {
-      content: 'R';
-      position: absolute; top: 4px; right: 4px;
-      font-family: 'Space Mono', monospace; font-size: 10px;
-      color: rgba(90,180,255,.9); font-weight: 700;
-    }
-
-    /* Zone highlight between L and R */
-    .marker-zone {
-      position: absolute; top: 0; bottom: 0;
-      background: rgba(255,255,255,.03);
-      pointer-events: none; z-index: 3;
-    }
-
-    .t-track {
-      white-space: nowrap; will-change: transform;
-      display: flex; align-items: center; padding: 0 100vw;
-    }
-    .t-text {
-      font-family: 'DM Sans', sans-serif; font-size: 80px;
-      font-weight: 500; color: #fff; white-space: nowrap;
-    }
+    .t-line-wrap { position: absolute; left: 0; right: 0; display: flex; align-items: center; overflow: hidden; height: 110px; transition: top .05s; }
+    /* FIX: Mirror ticker - whole line wrap flips, scroll direction reverses in JS */
+    .t-line-wrap.mirror { transform: scaleX(-1); }
+    .t-fade-l, .t-fade-r { position: absolute; top: 0; bottom: 0; width: 120px; z-index: 5; pointer-events: none; }
+    .t-fade-l { left: 0; } .t-fade-r { right: 0; }
+    .marker-left, .marker-right { position: absolute; top: 0; bottom: 0; width: 3px; z-index: 20; cursor: ew-resize; }
+    .marker-left { background: rgba(255,90,90,.85); } .marker-right { background: rgba(90,180,255,.85); }
+    .marker-left::before, .marker-right::before { content: ''; position: absolute; top: 0; bottom: 0; left: -8px; right: -8px; }
+    .marker-left::after { content: 'L'; position: absolute; top: 4px; left: 4px; font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(255,90,90,.9); font-weight: 700; }
+    .marker-right::after { content: 'R'; position: absolute; top: 4px; right: 4px; font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(90,180,255,.9); font-weight: 700; }
+    .marker-zone { position: absolute; top: 0; bottom: 0; background: rgba(255,255,255,.03); pointer-events: none; z-index: 3; }
+    .t-track { white-space: nowrap; will-change: transform; display: flex; align-items: center; padding: 0 100vw; }
+    .t-text { font-family: 'DM Sans', sans-serif; font-size: 80px; font-weight: 500; color: #fff; white-space: nowrap; }
     .t-word { display: inline-block; padding: 0 18px; transition: color .1s; }
     .t-word.lit { color: var(--accent); }
-    .t-sep {
-      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-      background: var(--accent); margin: 0 32px; vertical-align: middle; opacity: .35;
-    }
-
-    /* Ticker line drag handle — vertical drag */
-    .t-drag-handle {
-      position: absolute; left: 0; right: 0;
-      height: 18px; cursor: ns-resize;
-      background: rgba(198,236,49,.08);
-      border-top: 2px solid rgba(198,236,49,.35);
-      border-bottom: 2px solid rgba(198,236,49,.15);
-      z-index: 30;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .t-drag-handle::after {
-      content: '⋮⋮⋮';
-      font-size: 10px; color: rgba(198,236,49,.5);
-      letter-spacing: 3px;
-    }
-
-    /* ── CONTROL BAR ── */
-    .ctrl-bar {
-      height: 58px; background: rgba(0,0,0,.92); border-top: 1px solid #111;
-      display: flex; align-items: center; padding: 0 20px; gap: 12px;
-      position: relative; z-index: 40;
-    }
-    .cbtn {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: #1a1a1a; border: 1px solid #2a2a2a;
-      cursor: pointer; transition: all .2s; color: #fff; font-size: 16px;
-    }
+    .t-sep { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin: 0 32px; vertical-align: middle; opacity: .35; }
+    .t-drag-handle { position: absolute; left: 0; right: 0; height: 18px; cursor: ns-resize; background: rgba(198,236,49,.08); border-top: 2px solid rgba(198,236,49,.35); border-bottom: 2px solid rgba(198,236,49,.15); z-index: 30; display: flex; align-items: center; justify-content: center; }
+    .t-drag-handle::after { content: 'drag'; font-size: 9px; color: rgba(198,236,49,.5); letter-spacing: 3px; font-family: 'Space Mono', monospace; }
+    .ctrl-bar { height: 58px; background: rgba(0,0,0,.92); border-top: 1px solid #111; display: flex; align-items: center; padding: 0 20px; gap: 12px; position: relative; z-index: 40; }
+    .cbtn { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border: 1px solid #2a2a2a; cursor: pointer; transition: all .2s; color: #fff; font-size: 16px; }
     .cbtn:hover { border-color: var(--accent); color: var(--accent); }
     .cbtn.play { width: 46px; height: 46px; background: var(--accent); border-color: var(--accent); color: #000; font-size: 18px; }
     .cbtn.play:hover { opacity: .85; }
     .prog-wrap { flex: 1; height: 3px; background: #1a1a1a; border-radius: 2px; cursor: pointer; }
     .prog-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
     .timer { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-dim); padding: 3px 9px; border-radius: 4px; letter-spacing: 2px; }
-
-    /* ── TOAST ── */
     .toast-c { position: fixed; bottom: 70px; right: 20px; z-index: 999; }
-    .toast-m {
-      background: #1a1a20; border: 1px solid var(--border); border-left: 3px solid var(--accent);
-      color: var(--text); font-size: 12px; padding: 9px 14px; border-radius: 5px;
-      margin-top: 6px; font-family: 'Space Mono', monospace;
-      animation: tslide .25s ease; max-width: 240px;
-    }
+    .toast-m { background: #1a1a20; border: 1px solid var(--border); border-left: 3px solid var(--accent); color: var(--text); font-size: 12px; padding: 9px 14px; border-radius: 5px; margin-top: 6px; font-family: 'Space Mono', monospace; animation: tslide .25s ease; max-width: 240px; }
     @keyframes tslide { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
-
+    /* Android BLE Help Panel */
+    #bleHelpPanel { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:9999; display:none; align-items:center; justify-content:center; padding:20px; }
+    #bleHelpPanel.show { display:flex; }
+    .ble-help-box { background:#111115; border:1px solid var(--accent); border-radius:12px; max-width:500px; width:100%; padding:26px; max-height:90vh; overflow-y:auto; }
+    .ble-help-box h2 { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--accent); letter-spacing:2px; margin-bottom:16px; }
+    .ble-step { background:#0a0a0c; border-left:3px solid var(--accent); padding:10px 14px; border-radius:4px; margin-bottom:8px; font-size:13px; color:var(--text); line-height:1.7; }
+    .ble-step.err { border-left-color:#ff4444; }
+    .ble-step code { color:var(--accent); background:rgba(198,236,49,.1); padding:1px 5px; border-radius:3px; font-size:12px; }
+    .ble-step .tag { display:inline-block; background:rgba(198,236,49,.15); color:var(--accent); font-family:'Space Mono',monospace; font-size:9px; padding:2px 6px; border-radius:3px; margin-bottom:4px; letter-spacing:1px; }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); }
@@ -335,42 +132,35 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="brand">FEEL<span>WORLD</span></div>
-
   <div class="mode-tabs" style="margin-left:16px;">
-    <button class="m-tab on" id="tabV" onclick="setMode('v')">↕ Vertical</button>
-    <button class="m-tab" id="tabT" onclick="setMode('t')">↔ Ticker</button>
+    <button class="m-tab on" id="tabV" onclick="setMode('v')">&#x2195; Vertical</button>
+    <button class="m-tab" id="tabT" onclick="setMode('t')">&#x2194; Ticker</button>
   </div>
-
   <div class="topbar-mid">
-    <div class="ble-dot" id="gDot" style="width:7px;height:7px;border-radius:50%;background:var(--dim);"></div>
+    <div class="ble-dot" id="gDot"></div>
     <span id="gStatus" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--dim);">BLE Off</span>
     <button class="ble-btn" id="bleBtn" onclick="toggleBLE()">
       <div class="ble-dot" id="bleDot"></div>
       <span id="bleTxt">Connect Remote</span>
     </button>
+    <button class="btn-g" onclick="showBLEHelp()" style="margin-left:4px;padding:5px 9px;font-size:11px;" title="BLE Setup Help (Android)">?</button>
   </div>
 </div>
 
 <div class="main">
-
-  <!-- ── SIDEBAR ── -->
   <div class="sidebar">
-
-    <!-- Script -->
     <div class="sb">
       <div class="lbl">Script</div>
-      <textarea id="scriptInput" placeholder="Script yahan paste karo...&#10;&#10;Load button dabao to start."></textarea>
+      <textarea id="scriptInput" placeholder="Script yahan paste karo..."></textarea>
       <div class="brow">
-        <button class="btn-a" onclick="loadScript()">▶ Load</button>
+        <button class="btn-a" onclick="loadScript()">&#9654; Load</button>
         <button class="btn-g" onclick="clearScript()">Clear</button>
-        <button class="btn-g" onclick="toggleFS()">⛶ Full</button>
+        <button class="btn-g" onclick="toggleFS()">&#x26F6; Full</button>
       </div>
     </div>
 
-    <!-- Speed Control -->
     <div class="speed-section">
       <div class="lbl">Speed Control</div>
       <div class="speed-display">
@@ -379,18 +169,15 @@
           <div class="speed-unit">px/frame</div>
         </div>
         <div class="speed-btns">
-          <!-- Hold buttons for continuous change -->
-          <div class="spd-btn" id="btnSlow" title="Slow Down (hold)">−</div>
-          <div class="spd-btn" id="btnFast" title="Speed Up (hold)">+</div>
+          <div class="spd-btn" id="btnSlow">&#8722;</div>
+          <div class="spd-btn" id="btnFast">+</div>
         </div>
       </div>
-      <!-- Fine slider — 0.1 to 10.0 in 0.1 steps -->
       <div class="fine-row">
         <div class="fine-lbl">Fine</div>
         <input type="range" id="speedSlider" min="1" max="100" value="10" step="1" oninput="setSpeedFromSlider(this.value)">
         <div class="ctrl-val" id="speedPct" style="width:40px;">10%</div>
       </div>
-      <!-- Preset buttons -->
       <div class="brow" style="margin-top:8px;">
         <button class="btn-g" onclick="setSpeed(0.3)" style="padding:4px 8px;font-size:10px;">0.3</button>
         <button class="btn-g" onclick="setSpeed(0.5)" style="padding:4px 8px;font-size:10px;">0.5</button>
@@ -400,7 +187,6 @@
       </div>
     </div>
 
-    <!-- Font + margin -->
     <div class="sb">
       <div class="lbl">Display</div>
       <div class="ctrl-row">
@@ -423,11 +209,8 @@
       </div>
     </div>
 
-    <!-- Ticker controls (shown only in ticker mode) -->
     <div class="ticker-controls" id="tickerCtrlSection" style="display:none;">
       <div class="lbl">Ticker Position &amp; Markers</div>
-
-      <!-- Mini preview -->
       <div class="mini-preview" id="miniPreview">
         <div class="mini-line" id="miniLine" style="top:50%;"></div>
         <div class="mini-mL" id="miniML" style="left:10%;"></div>
@@ -436,40 +219,28 @@
           <span style="font-family:'Space Mono',monospace;font-size:9px;color:#333;letter-spacing:1px;">PREVIEW</span>
         </div>
       </div>
-
-      <!-- Ticker line vertical position -->
       <div class="ctrl-row">
         <div class="ctrl-lbl">Line Y</div>
         <input type="range" id="lineYSlider" min="5" max="90" value="50" oninput="setLineY(this.value)">
         <div class="ctrl-val" id="lineYVal">50%</div>
       </div>
-
-      <!-- Left marker -->
       <div class="ctrl-row">
-        <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);">◀ L Marker</div>
+        <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);">L Marker</div>
         <input type="range" id="markerLSlider" min="0" max="50" value="10" oninput="setMarkerL(this.value)">
         <div class="ctrl-val" id="markerLVal" style="color:rgba(255,90,90,.9);">10%</div>
       </div>
-
-      <!-- Right marker -->
       <div class="ctrl-row">
-        <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);">R Marker ▶</div>
+        <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);">R Marker</div>
         <input type="range" id="markerRSlider" min="50" max="100" value="85" oninput="setMarkerR(this.value)">
         <div class="ctrl-val" id="markerRVal" style="color:rgba(90,180,255,.9);">85%</div>
       </div>
-
-      <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5;">
-        Drag markers directly on screen bhi kar sakte ho. L/R markers reading zone dikhate hain.
-      </div>
     </div>
 
-    <!-- Color -->
     <div class="sb">
       <div class="lbl">Color Theme</div>
       <div class="palette" id="palette"></div>
     </div>
 
-    <!-- Remote map -->
     <div class="remote-map">
       <div class="lbl">Remote Key Map</div>
       <div class="key-grid">
@@ -480,668 +251,471 @@
         <div class="key-item"><span class="kbadge">B5:0x02</span><span class="kact">Mirror</span></div>
         <div class="key-item"><span class="kbadge">B5:0x08</span><span class="kact">Loop</span></div>
         <div class="key-item"><span class="kbadge">B5:0x04</span><span class="kact">Mode Switch</span></div>
-        <div class="key-item"><span class="kbadge">JOY↑</span><span class="kact">Speed +</span></div>
-        <div class="key-item"><span class="kbadge">JOY↓</span><span class="kact">Speed −</span></div>
-        <div class="key-item"><span class="kbadge">JOY→</span><span class="kact">Font +</span></div>
-        <div class="key-item"><span class="kbadge">JOY←</span><span class="kact">Font −</span></div>
+        <div class="key-item"><span class="kbadge">JOY&#x2191;</span><span class="kact">Speed +</span></div>
+        <div class="key-item"><span class="kbadge">JOY&#x2193;</span><span class="kact">Speed -</span></div>
+        <div class="key-item"><span class="kbadge">JOY&#x2192;</span><span class="kact">Font +</span></div>
+        <div class="key-item"><span class="kbadge">JOY&#x2190;</span><span class="kact">Font -</span></div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /sidebar -->
-
-  <!-- ── PROMPTER ── -->
   <div class="prompter-area" id="prompterArea">
-
-    <!-- VERTICAL MODE -->
     <div class="v-mode" id="vMode">
       <div class="v-fade-t" id="vFadeT"></div>
       <div class="v-fade-b" id="vFadeB"></div>
       <div id="vScroll" style="will-change:transform;padding:50vh 8% 50vh;">
-        <div class="v-text" id="vText">
-Apna script sidebar mein likho aur Load dabao.
+        <div class="v-text" id="vText">Apna script sidebar mein likho aur Load dabao.
 
-↔ Ticker tab se right-to-left line mode on karo.
+Ticker tab se right-to-left line mode on karo.
 
-FEELWORLD remote se full control milega.
-        </div>
+FEELWORLD remote se full control milega.</div>
       </div>
     </div>
 
-    <!-- TICKER MODE -->
     <div class="t-mode" id="tMode">
-
-      <!-- Drag handle at top of ticker line for vertical positioning -->
-      <div class="t-drag-handle" id="tDragHandle" title="Drag to move line up/down"></div>
-
-      <!-- The scrolling ticker line -->
+      <div class="t-drag-handle" id="tDragHandle"></div>
       <div class="t-line-wrap" id="tLineWrap">
         <div class="t-fade-l" id="tFadeL"></div>
         <div class="t-fade-r" id="tFadeR"></div>
-        <!-- Left Marker (draggable) -->
-        <div class="marker-left" id="markerL" title="Left marker – drag"></div>
-        <!-- Right Marker (draggable) -->
-        <div class="marker-right" id="markerR" title="Right marker – drag"></div>
-        <!-- Zone highlight between markers -->
+        <div class="marker-left" id="markerL"></div>
+        <div class="marker-right" id="markerR"></div>
         <div class="marker-zone" id="markerZone"></div>
-        <!-- Scrolling text track -->
         <div class="t-track" id="tTrack">
           <div class="t-text" id="tText">
             <span class="t-word">Script</span><span class="t-word">load</span><span class="t-word">karo</span>
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- CONTROL BAR -->
     <div class="ctrl-bar">
-      <div class="cbtn play" id="playBtn" onclick="togglePlay()">▶</div>
-      <div class="cbtn" onclick="resetAll()" title="Reset">↺</div>
+      <div class="cbtn play" id="playBtn" onclick="togglePlay()">&#9654;</div>
+      <div class="cbtn" onclick="resetAll()">&#x21BA;</div>
       <div class="prog-wrap" id="progWrap" onclick="seekClick(event)">
         <div class="prog-fill" id="progFill"></div>
       </div>
       <div class="timer" id="timerEl">00:00:00</div>
     </div>
-
-  </div><!-- /prompter-area -->
-
-</div><!-- /main -->
+  </div>
+</div>
 
 <div class="toast-c" id="toastC"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
-const S = {
-  mode: 'v',          // 'v' vertical | 't' ticker
-  playing: false,
-  speed: 1.0,         // px per frame (0.1 – 10.0)
-  fontSize: 52,
-  mg: 8,
-  mirror: false,
-  loop: false,
-  colorIdx: 0,
-  timer: 0,
-  rafId: null,
-  timerInterval: null,
-  // vertical
-  vPos: 0,
-  // ticker
-  tPos: 0,
-  tLineY: 50,         // % from top
-  markerL: 10,        // % from left
-  markerR: 85,
-  // ble
-  bleDevice: null,
-  bleChar: null,
-};
+<!-- Android BLE Help Panel -->
+<div id="bleHelpPanel">
+  <div class="ble-help-box">
+    <h2>&#x1F4F1; BLE Remote Setup Guide</h2>
+    <div class="ble-step">
+      <div class="tag">PC / CHROME DESKTOP</div><br>
+      Chrome mein Web Bluetooth default on hota hai. Bas "Connect Remote" dabao aur device select karo.
+    </div>
+    <div class="ble-step">
+      <div class="tag">ANDROID - CHROME (FLAG ENABLE KARO)</div><br>
+      1. Chrome mein type karo: <code>chrome://flags</code><br><br>
+      2. Search: <code>Experimental Web Platform features</code><br><br>
+      3. Usse <strong>Enabled</strong> karo<br><br>
+      4. Chrome restart karo, site reload karo<br><br>
+      5. Ab "Connect Remote" kaam karega &#x2713;
+    </div>
+    <div class="ble-step">
+      <div class="tag">ANDROID - KIWI BROWSER (BEST OPTION)</div><br>
+      Kiwi Browser mein Web Bluetooth bina flags ke kaam karta hai.<br>
+      Play Store se install karo: <strong>Kiwi Browser - Fast &amp; Quiet</strong>
+    </div>
+    <div class="ble-step">
+      <div class="tag">ANDROID 12+ PERMISSIONS</div><br>
+      Settings > Apps > Browser > Permissions mein yeh on karo:<br>
+      - Location (Nearby)<br>
+      - Nearby devices
+    </div>
+    <div class="ble-step err">
+      <div class="tag" style="color:#ff6666;background:rgba(255,68,68,.1);">WHY ANDROID FAILS</div><br>
+      Android Chrome pe Web Bluetooth by default off hota hai (privacy reasons). GitHub Pages HTTPS pe hai jo sahi hai, bas browser support chahiye.
+    </div>
+    <button onclick="hideBLEHelp()" style="margin-top:14px;width:100%;padding:10px;background:var(--accent);border:none;border-radius:6px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;color:#000;letter-spacing:1px;">BAND KARO</button>
+  </div>
+</div>
 
+<script>
+const S = {
+  mode:'v', playing:false, speed:1.0, fontSize:52, mg:8,
+  mirror:false, loop:false, colorIdx:0, timer:0,
+  rafId:null, timerInterval:null,
+  vPos:0, tPos:0, tScrollDir:-1, /* always -1, mirror handled by CSS scaleX */
+  tLineY:50, markerL:10, markerR:85,
+  bleDevice:null, bleChar:null,
+};
 const SVC_UUID  = '00001000-e619-419b-bc43-821e71a409b7';
 const CHAR_UUID = '00001002-e619-419b-bc43-821e71a409b7';
-
 const COLORS = [
-  { bg:'#000', text:'#fff', lbl:'A', lc:'#fff' },
-  { bg:'#fff', text:'#000', lbl:'A', lc:'#000' },
-  { bg:'#1a1a2e', text:'#e0e0ff', lbl:'A', lc:'#e0e0ff' },
-  { bg:'#0d1f0d', text:'#7dff7d', lbl:'A', lc:'#7dff7d' },
-  { bg:'#1f0d0d', text:'#ff9999', lbl:'A', lc:'#ff9999' },
+  {bg:'#000',text:'#fff',lbl:'A',lc:'#fff'},
+  {bg:'#fff',text:'#000',lbl:'A',lc:'#000'},
+  {bg:'#1a1a2e',text:'#e0e0ff',lbl:'A',lc:'#e0e0ff'},
+  {bg:'#0d1f0d',text:'#7dff7d',lbl:'A',lc:'#7dff7d'},
+  {bg:'#1f0d0d',text:'#ff9999',lbl:'A',lc:'#ff9999'},
 ];
-
 const $ = id => document.getElementById(id);
 
-// ══════════════════════════════════════════════
-//  SPEED
-// ══════════════════════════════════════════════
+/* SPEED */
 function setSpeed(v) {
-  S.speed = Math.round(Math.min(10, Math.max(0.1, v)) * 10) / 10;
+  S.speed = Math.round(Math.min(10,Math.max(0.1,v))*10)/10;
   $('speedNum').textContent = S.speed.toFixed(1);
-  // sync slider: slider 1–100 maps to 0.1–10.0
-  $('speedSlider').value = Math.round(S.speed * 10);
-  $('speedPct').textContent = Math.round(S.speed * 10) + '%';
-  // restart RAF if playing
+  $('speedSlider').value = Math.round(S.speed*10);
+  $('speedPct').textContent = Math.round(S.speed*10)+'%';
   if (S.playing) { cancelAnimationFrame(S.rafId); startRAF(); }
 }
-
-function setSpeedFromSlider(v) {
-  setSpeed(parseFloat(v) / 10);
-}
-
-// Hold-to-change buttons
-let holdTimer = null;
-let holdInterval = null;
+function setSpeedFromSlider(v) { setSpeed(parseFloat(v)/10); }
+let holdTimer=null, holdInterval=null;
 function holdStart(dir) {
-  const step = 0.1;
-  const change = () => setSpeed(S.speed + dir * step);
+  const change = () => setSpeed(S.speed+dir*0.1);
   change();
-  holdTimer = setTimeout(() => {
-    holdInterval = setInterval(change, 80);
-  }, 400);
+  holdTimer = setTimeout(() => { holdInterval = setInterval(change,80); }, 400);
 }
-function holdEnd() {
-  clearTimeout(holdTimer);
-  clearInterval(holdInterval);
-}
+function holdEnd() { clearTimeout(holdTimer); clearInterval(holdInterval); }
+$('btnFast').addEventListener('mousedown', ()=>holdStart(+1));
+$('btnFast').addEventListener('touchstart', ()=>holdStart(+1), {passive:true});
+$('btnSlow').addEventListener('mousedown', ()=>holdStart(-1));
+$('btnSlow').addEventListener('touchstart', ()=>holdStart(-1), {passive:true});
+['mouseup','mouseleave','touchend'].forEach(ev => document.addEventListener(ev, holdEnd));
 
-$('btnFast').addEventListener('mousedown',  () => holdStart(+1));
-$('btnFast').addEventListener('touchstart', () => holdStart(+1), { passive: true });
-$('btnSlow').addEventListener('mousedown',  () => holdStart(-1));
-$('btnSlow').addEventListener('touchstart', () => holdStart(-1), { passive: true });
-['mouseup','mouseleave','touchend'].forEach(ev => {
-  document.addEventListener(ev, holdEnd);
-});
-
-// ══════════════════════════════════════════════
-//  FONT / MARGIN
-// ══════════════════════════════════════════════
+/* FONT / MARGIN */
 function setFont(v) {
-  S.fontSize = parseInt(v);
-  $('fontVal').textContent = v;
-  $('vText').style.fontSize = v + 'px';
-  $('tText').style.fontSize = Math.max(30, v) + 'px';
-  // update ticker line height
-  $('tLineWrap').style.height = (parseInt(v) * 1.5 + 20) + 'px';
+  S.fontSize = parseInt(v); $('fontVal').textContent = v;
+  $('vText').style.fontSize = v+'px';
+  $('tText').style.fontSize = Math.max(30,v)+'px';
+  $('tLineWrap').style.height = (parseInt(v)*1.5+20)+'px';
   positionTickerLine();
 }
-
 function setMg(v) {
-  S.mg = parseInt(v);
-  $('mgVal').textContent = v + '%';
-  $('vScroll').style.paddingLeft = v + '%';
-  $('vScroll').style.paddingRight = v + '%';
+  S.mg=parseInt(v); $('mgVal').textContent=v+'%';
+  $('vScroll').style.paddingLeft=v+'%'; $('vScroll').style.paddingRight=v+'%';
 }
 
+/* MIRROR FIX */
 function onMirror() {
   S.mirror = $('mirrorTog').checked;
-  $('vText').classList.toggle('mirror', S.mirror);
-  $('tText').classList.toggle('mirror', S.mirror);
-  toast(S.mirror ? 'Mirror ON 🪞' : 'Mirror OFF');
+  // Vertical: flip whole v-mode container
+  $('vMode').classList.toggle('mirror', S.mirror);
+  // Ticker: scaleX(-1) on t-line-wrap visually mirrors text + markers
+  // Scroll direction STAYS SAME (-1) — scaleX already handles visual flip
+  // Changing tScrollDir would push text off screen (that was the bug)
+  $('tLineWrap').classList.toggle('mirror', S.mirror);
+  S.tScrollDir = -1; // always -1, do NOT reverse for ticker mirror
+  toast(S.mirror ? 'Mirror ON' : 'Mirror OFF');
 }
 
-// ══════════════════════════════════════════════
-//  COLOR
-// ══════════════════════════════════════════════
+/* COLOR */
 (function buildPalette() {
   const wrap = $('palette');
-  COLORS.forEach((c, i) => {
+  COLORS.forEach((c,i) => {
     const s = document.createElement('div');
-    s.className = 'swatch' + (i===0?' on':'');
-    s.style.background = c.bg;
-    s.style.color = c.lc;
-    s.style.border = `2px solid ${c.lc}22`;
-    s.textContent = c.lbl;
+    s.className = 'swatch'+(i===0?' on':'');
+    s.style.background = c.bg; s.style.color = c.lc;
+    s.style.border = `2px solid ${c.lc}22`; s.textContent = c.lbl;
     s.onclick = () => applyColor(i);
     wrap.appendChild(s);
   });
 })();
-
 function applyColor(i) {
-  S.colorIdx = i;
-  const c = COLORS[i];
-  $('prompterArea').style.background = c.bg;
-  $('vText').style.color = c.text;
-  $('tText').style.color = c.text;
+  S.colorIdx=i; const c=COLORS[i];
+  $('prompterArea').style.background=c.bg;
+  $('vText').style.color=c.text; $('tText').style.color=c.text;
   updateFades(c.bg);
-  document.querySelectorAll('.swatch').forEach((s,j) => s.classList.toggle('on', j===i));
+  document.querySelectorAll('.swatch').forEach((s,j)=>s.classList.toggle('on',j===i));
 }
-
 function updateFades(bg) {
-  $('vFadeT').style.background = `linear-gradient(to bottom,${bg},transparent)`;
-  $('vFadeB').style.background = `linear-gradient(to top,${bg},transparent)`;
-  $('tFadeL').style.background = `linear-gradient(to right,${bg},transparent)`;
-  $('tFadeR').style.background = `linear-gradient(to left,${bg},transparent)`;
+  $('vFadeT').style.background=`linear-gradient(to bottom,${bg},transparent)`;
+  $('vFadeB').style.background=`linear-gradient(to top,${bg},transparent)`;
+  $('tFadeL').style.background=`linear-gradient(to right,${bg},transparent)`;
+  $('tFadeR').style.background=`linear-gradient(to left,${bg},transparent)`;
 }
 
-// ══════════════════════════════════════════════
-//  SCRIPT
-// ══════════════════════════════════════════════
+/* SCRIPT */
 function loadScript() {
-  const txt = $('scriptInput').value.trim();
+  const txt=$('scriptInput').value.trim();
   if (!txt) { toast('Script khali hai!'); return; }
-  $('vText').textContent = txt;
-  buildTickerWords(txt);
-  S.vPos = 0;
-  S.tPos = 0;
-  $('vScroll').style.transform = 'translateY(0)';
-  updateProgress();
-  toast('Script loaded ✓');
+  $('vText').textContent=txt; buildTickerWords(txt);
+  S.vPos=0; S.tPos=0;
+  $('vScroll').style.transform='translateY(0)'; updateProgress();
+  toast('Script loaded');
 }
-
 function clearScript() {
-  $('scriptInput').value = '';
-  $('vText').textContent = 'Script load karo...';
-  $('tText').innerHTML = '<span class="t-word">Script</span><span class="t-word">load</span><span class="t-word">karo</span>';
+  $('scriptInput').value='';
+  $('vText').textContent='Script load karo...';
+  $('tText').innerHTML='<span class="t-word">Script</span><span class="t-word">load</span><span class="t-word">karo</span>';
   resetAll();
 }
-
 function buildTickerWords(txt) {
-  const words = txt.replace(/\n+/g,' ').split(/\s+/).filter(Boolean);
-  $('tText').innerHTML =
-    words.map(w => `<span class="t-word">${w}</span>`).join('') +
-    `<span class="t-sep"></span>` +
-    words.map(w => `<span class="t-word">${w}</span>`).join('');
+  const words=txt.replace(/\n+/g,' ').split(/\s+/).filter(Boolean);
+  $('tText').innerHTML=words.map(w=>`<span class="t-word">${w}</span>`).join('')+
+    `<span class="t-sep"></span>`+
+    words.map(w=>`<span class="t-word">${w}</span>`).join('');
 }
 
-// ══════════════════════════════════════════════
-//  MODE SWITCH
-// ══════════════════════════════════════════════
+/* MODE */
 function setMode(m) {
-  S.mode = m;
-  $('tabV').classList.toggle('on', m==='v');
-  $('tabT').classList.toggle('on', m==='t');
-  $('vMode').style.display   = m==='v' ? 'block' : 'none';
-  $('tMode').classList.toggle('on', m==='t');
-  $('tickerCtrlSection').style.display = m==='t' ? 'block' : 'none';
-  $('mgRow').style.display   = m==='v' ? 'flex' : 'none';
+  S.mode=m;
+  $('tabV').classList.toggle('on',m==='v');
+  $('tabT').classList.toggle('on',m==='t');
+  $('vMode').style.display=m==='v'?'block':'none';
+  $('tMode').classList.toggle('on',m==='t');
+  $('tickerCtrlSection').style.display=m==='t'?'block':'none';
+  $('mgRow').style.display=m==='v'?'flex':'none';
   if (m==='t') positionTickerLine();
   if (S.playing) { cancelAnimationFrame(S.rafId); startRAF(); }
 }
 
-// ══════════════════════════════════════════════
-//  TICKER LINE POSITION (vertical drag)
-// ══════════════════════════════════════════════
+/* TICKER LINE Y */
 function setLineY(pct) {
-  S.tLineY = parseInt(pct);
-  $('lineYVal').textContent = pct + '%';
-  positionTickerLine();
-  updateMiniPreview();
+  S.tLineY=parseInt(pct); $('lineYVal').textContent=pct+'%';
+  positionTickerLine(); updateMiniPreview();
 }
-
 function positionTickerLine() {
-  const area   = $('prompterArea');
-  const wrap   = $('tLineWrap');
-  const handle = $('tDragHandle');
-  const barH   = 58; // ctrl bar
-  const areaH  = area.clientHeight - barH;
-  const wrapH  = wrap.offsetHeight || (S.fontSize * 1.5 + 20);
-  const top    = Math.round((S.tLineY / 100) * areaH - wrapH / 2);
-  wrap.style.top = Math.max(0, Math.min(areaH - wrapH, top)) + 'px';
-  handle.style.top = wrap.style.top;
+  const area=$('prompterArea'), wrap=$('tLineWrap'), handle=$('tDragHandle');
+  const areaH=area.clientHeight-58;
+  const wrapH=wrap.offsetHeight||(S.fontSize*1.5+20);
+  const top=Math.round((S.tLineY/100)*areaH-wrapH/2);
+  const finalTop=Math.max(0,Math.min(areaH-wrapH,top));
+  wrap.style.top=finalTop+'px'; handle.style.top=finalTop+'px';
 }
-
-// Drag ticker line vertically
 (function initLineDrag() {
-  const handle = $('tDragHandle');
-  let dragging = false, startY = 0, startPct = 50;
-
-  function onDown(e) {
-    if (S.mode !== 't') return;
-    dragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    startPct = S.tLineY;
-    e.preventDefault();
-  }
+  const handle=$('tDragHandle');
+  let dragging=false, startY=0, startPct=50;
+  function onDown(e) { if(S.mode!=='t') return; dragging=true; startY=e.touches?e.touches[0].clientY:e.clientY; startPct=S.tLineY; e.preventDefault(); }
   function onMove(e) {
-    if (!dragging) return;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    const area = $('prompterArea');
-    const dy = cy - startY;
-    const areaH = area.clientHeight - 58;
-    const deltaPct = (dy / areaH) * 100;
-    const newPct = Math.round(Math.max(5, Math.min(90, startPct + deltaPct)));
-    $('lineYSlider').value = newPct;
-    setLineY(newPct);
+    if(!dragging) return;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const areaH=$('prompterArea').clientHeight-58;
+    const newPct=Math.round(Math.max(5,Math.min(90,startPct+((cy-startY)/areaH)*100)));
+    $('lineYSlider').value=newPct; setLineY(newPct);
   }
-  function onUp() { dragging = false; }
-
-  handle.addEventListener('mousedown', onDown);
-  handle.addEventListener('touchstart', onDown, { passive: false });
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('touchmove', onMove, { passive: false });
-  document.addEventListener('mouseup', onUp);
-  document.addEventListener('touchend', onUp);
+  function onUp() { dragging=false; }
+  handle.addEventListener('mousedown',onDown);
+  handle.addEventListener('touchstart',onDown,{passive:false});
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('mouseup',onUp);
+  document.addEventListener('touchend',onUp);
 })();
 
-// ══════════════════════════════════════════════
-//  MARKERS (Left / Right) — drag on screen
-// ══════════════════════════════════════════════
-function setMarkerL(pct) {
-  S.markerL = parseInt(pct);
-  $('markerLVal').textContent = pct + '%';
-  applyMarkers();
-}
-function setMarkerR(pct) {
-  S.markerR = parseInt(pct);
-  $('markerRVal').textContent = pct + '%';
-  applyMarkers();
-}
+/* MARKERS */
+function setMarkerL(pct) { S.markerL=parseInt(pct); $('markerLVal').textContent=pct+'%'; applyMarkers(); }
+function setMarkerR(pct) { S.markerR=parseInt(pct); $('markerRVal').textContent=pct+'%'; applyMarkers(); }
 function applyMarkers() {
-  $('markerL').style.left    = S.markerL + '%';
-  $('markerR').style.left    = S.markerR + '%';
-  $('markerZone').style.left  = S.markerL + '%';
-  $('markerZone').style.width = (S.markerR - S.markerL) + '%';
+  $('markerL').style.left=S.markerL+'%'; $('markerR').style.left=S.markerR+'%';
+  $('markerZone').style.left=S.markerL+'%'; $('markerZone').style.width=(S.markerR-S.markerL)+'%';
   updateMiniPreview();
 }
 function updateMiniPreview() {
-  $('miniLine').style.top  = S.tLineY + '%';
-  $('miniML').style.left   = S.markerL + '%';
-  $('miniMR').style.left   = S.markerR + '%';
+  $('miniLine').style.top=S.tLineY+'%';
+  $('miniML').style.left=S.markerL+'%';
+  $('miniMR').style.left=S.markerR+'%';
 }
-
-// Drag markers with mouse/touch
 (function initMarkerDrag() {
   function makeDraggable(el, isLeft) {
-    let dragging = false;
-    function onDown(e) {
-      dragging = true; e.preventDefault(); e.stopPropagation();
-    }
+    let dragging=false;
+    function onDown(e) { dragging=true; e.preventDefault(); e.stopPropagation(); }
     function onMove(e) {
-      if (!dragging) return;
-      const wrap = $('tLineWrap');
-      const rect = wrap.getBoundingClientRect();
-      const cx = e.touches ? e.touches[0].clientX : e.clientX;
-      let pct = Math.round(((cx - rect.left) / rect.width) * 100);
-      if (isLeft) {
-        pct = Math.max(0, Math.min(S.markerR - 5, pct));
-        $('markerLSlider').value = pct;
-        setMarkerL(pct);
-      } else {
-        pct = Math.max(S.markerL + 5, Math.min(100, pct));
-        $('markerRSlider').value = pct;
-        setMarkerR(pct);
-      }
+      if(!dragging) return;
+      const rect=$('tLineWrap').getBoundingClientRect();
+      const cx=e.touches?e.touches[0].clientX:e.clientX;
+      let pct=Math.round(((cx-rect.left)/rect.width)*100);
+      if(isLeft) { pct=Math.max(0,Math.min(S.markerR-5,pct)); $('markerLSlider').value=pct; setMarkerL(pct); }
+      else { pct=Math.max(S.markerL+5,Math.min(100,pct)); $('markerRSlider').value=pct; setMarkerR(pct); }
     }
-    function onUp() { dragging = false; }
-    el.addEventListener('mousedown', onDown);
-    el.addEventListener('touchstart', onDown, { passive: false });
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('mouseup', onUp);
-    document.addEventListener('touchend', onUp);
+    function onUp() { dragging=false; }
+    el.addEventListener('mousedown',onDown); el.addEventListener('touchstart',onDown,{passive:false});
+    document.addEventListener('mousemove',onMove); document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('mouseup',onUp); document.addEventListener('touchend',onUp);
   }
-  makeDraggable($('markerL'), true);
-  makeDraggable($('markerR'), false);
+  makeDraggable($('markerL'),true); makeDraggable($('markerR'),false);
 })();
 
-// ══════════════════════════════════════════════
-//  PLAY / PAUSE / RAF LOOP
-// ══════════════════════════════════════════════
-function togglePlay() {
-  S.playing ? pauseAll() : playAll();
-}
-
+/* PLAY / PAUSE */
+function togglePlay() { S.playing ? pauseAll() : playAll(); }
 function playAll() {
-  S.playing = true;
-  $('playBtn').textContent = '⏸';
-  $('playBtn').style.background = 'var(--red)';
-  $('playBtn').style.borderColor = 'var(--red)';
+  S.playing=true; $('playBtn').innerHTML='&#9646;&#9646;';
+  $('playBtn').style.background='var(--red)'; $('playBtn').style.borderColor='var(--red)';
   clearInterval(S.timerInterval);
-  S.timerInterval = setInterval(() => { S.timer++; updateTimer(); }, 1000);
+  S.timerInterval=setInterval(()=>{ S.timer++; updateTimer(); },1000);
   startRAF();
 }
-
 function pauseAll() {
-  S.playing = false;
-  $('playBtn').textContent = '▶';
-  $('playBtn').style.background = 'var(--accent)';
-  $('playBtn').style.borderColor = 'var(--accent)';
-  clearInterval(S.timerInterval);
-  cancelAnimationFrame(S.rafId);
+  S.playing=false; $('playBtn').innerHTML='&#9654;';
+  $('playBtn').style.background='var(--accent)'; $('playBtn').style.borderColor='var(--accent)';
+  clearInterval(S.timerInterval); cancelAnimationFrame(S.rafId);
 }
-
 function startRAF() {
-  function frame() {
-    if (!S.playing) return;
-    if (S.mode === 'v') scrollVertical();
-    else scrollTicker();
-    S.rafId = requestAnimationFrame(frame);
-  }
-  S.rafId = requestAnimationFrame(frame);
+  function frame() { if(!S.playing) return; S.mode==='v'?scrollVertical():scrollTicker(); S.rafId=requestAnimationFrame(frame); }
+  S.rafId=requestAnimationFrame(frame);
 }
 
 function scrollVertical() {
-  S.vPos += S.speed;
-  const track  = $('vScroll');
-  const inner  = $('vMode');
-  const maxPos = track.scrollHeight - inner.clientHeight;
-  if (S.vPos >= maxPos) {
-    if ($('loopTog').checked) { S.vPos = 0; S.timer = 0; }
-    else { S.vPos = maxPos; pauseAll(); toast('Script khatam 🎬'); return; }
+  S.vPos+=S.speed;
+  const track=$('vScroll'), inner=$('vMode');
+  const maxPos=track.scrollHeight-inner.clientHeight;
+  if (S.vPos>=maxPos) {
+    if ($('loopTog').checked) { S.vPos=0; S.timer=0; }
+    else { S.vPos=maxPos; pauseAll(); toast('Script khatam'); return; }
   }
-  track.style.transform = `translateY(-${S.vPos}px)`;
-  updateProgress();
+  track.style.transform=`translateY(-${S.vPos}px)`; updateProgress();
 }
 
-// Word highlight for ticker
-let litWord = null;
+/* TICKER SCROLL FIX: direction reverses when mirror is on */
+let litWord=null;
 function scrollTicker() {
-  S.tPos += S.speed;
-  const track = $('tTrack');
-  const wrap  = $('tLineWrap');
-  const total = track.scrollWidth / 2; // half because text duplicated
-  if (S.tPos >= total) {
-    if ($('loopTog').checked || true) S.tPos = 0; // always loop ticker
-  }
-  track.style.transform = `translateX(-${S.tPos}px)`;
-  updateProgress();
-  highlightCenterWord();
+  S.tPos+=S.speed;
+  const track=$('tTrack');
+  const total=track.scrollWidth/2;
+  if (S.tPos>=total) S.tPos=0;
+  // S.tScrollDir: -1 = normal (left scroll), +1 = mirror (right scroll)
+  track.style.transform=`translateX(${S.tScrollDir*S.tPos}px)`;
+  updateProgress(); highlightCenterWord();
 }
-
 function highlightCenterWord() {
-  const wrap    = $('tLineWrap');
-  const center  = wrap.getBoundingClientRect().left + wrap.clientWidth / 2;
-  const words   = $('tText').querySelectorAll('.t-word');
-  let closest = null, minDist = Infinity;
-  words.forEach(w => {
-    const r = w.getBoundingClientRect();
-    const mid = r.left + r.width / 2;
-    const d = Math.abs(mid - center);
-    if (d < minDist) { minDist = d; closest = w; }
-  });
-  if (litWord !== closest) {
-    if (litWord) litWord.classList.remove('lit');
-    if (closest) closest.classList.add('lit');
-    litWord = closest;
-  }
+  const wrap=$('tLineWrap');
+  const center=wrap.getBoundingClientRect().left+wrap.clientWidth/2;
+  const words=$('tText').querySelectorAll('.t-word');
+  let closest=null, minDist=Infinity;
+  words.forEach(w=>{ const r=w.getBoundingClientRect(); const d=Math.abs(r.left+r.width/2-center); if(d<minDist){minDist=d;closest=w;} });
+  if(litWord!==closest) { if(litWord) litWord.classList.remove('lit'); if(closest) closest.classList.add('lit'); litWord=closest; }
 }
 
-// ══════════════════════════════════════════════
-//  RESET / SEEK
-// ══════════════════════════════════════════════
+/* RESET / SEEK */
 function resetAll() {
-  pauseAll();
-  S.vPos = 0; S.tPos = 0; S.timer = 0;
-  $('vScroll').style.transform = 'translateY(0)';
-  $('tTrack').style.transform  = 'translateX(0)';
+  pauseAll(); S.vPos=0; S.tPos=0; S.timer=0;
+  $('vScroll').style.transform='translateY(0)'; $('tTrack').style.transform='translateX(0)';
   updateProgress(); updateTimer();
 }
-
 function seekClick(e) {
-  const rect = $('progWrap').getBoundingClientRect();
-  const r = (e.clientX - rect.left) / rect.width;
-  if (S.mode === 'v') {
-    const max = $('vScroll').scrollHeight - $('vMode').clientHeight;
-    S.vPos = Math.floor(r * max);
-    $('vScroll').style.transform = `translateY(-${S.vPos}px)`;
-  } else {
-    const total = $('tTrack').scrollWidth / 2;
-    S.tPos = Math.floor(r * total);
-    $('tTrack').style.transform = `translateX(-${S.tPos}px)`;
-  }
+  const rect=$('progWrap').getBoundingClientRect(); const r=(e.clientX-rect.left)/rect.width;
+  if(S.mode==='v') { const max=$('vScroll').scrollHeight-$('vMode').clientHeight; S.vPos=Math.floor(r*max); $('vScroll').style.transform=`translateY(-${S.vPos}px)`; }
+  else { const total=$('tTrack').scrollWidth/2; S.tPos=Math.floor(r*total); $('tTrack').style.transform=`translateX(${S.tScrollDir*S.tPos}px)`; }
   updateProgress();
 }
-
 function updateProgress() {
-  let pct = 0;
-  if (S.mode === 'v') {
-    const max = $('vScroll').scrollHeight - $('vMode').clientHeight;
-    pct = max > 0 ? (S.vPos / max) * 100 : 0;
-  } else {
-    const total = $('tTrack').scrollWidth / 2;
-    pct = total > 0 ? (S.tPos / total) * 100 : 0;
-  }
-  $('progFill').style.width = Math.min(100, pct) + '%';
+  let pct=0;
+  if(S.mode==='v') { const max=$('vScroll').scrollHeight-$('vMode').clientHeight; pct=max>0?(S.vPos/max)*100:0; }
+  else { const total=$('tTrack').scrollWidth/2; pct=total>0?(S.tPos/total)*100:0; }
+  $('progFill').style.width=Math.min(100,pct)+'%';
 }
-
 function updateTimer() {
-  const h = Math.floor(S.timer / 3600);
-  const m = Math.floor((S.timer % 3600) / 60);
-  const s = S.timer % 60;
-  $('timerEl').textContent =
-    String(h).padStart(2,'0') + ':' +
-    String(m).padStart(2,'0') + ':' +
-    String(s).padStart(2,'0');
+  const h=Math.floor(S.timer/3600), m=Math.floor((S.timer%3600)/60), s=S.timer%60;
+  $('timerEl').textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
 }
 
-// ══════════════════════════════════════════════
-//  FULLSCREEN
-// ══════════════════════════════════════════════
+/* FULLSCREEN */
 function toggleFS() {
-  const el = $('prompterArea');
-  if (!document.fullscreenElement) el.requestFullscreen?.() || el.webkitRequestFullscreen?.();
-  else document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+  const el=$('prompterArea');
+  if(!document.fullscreenElement) { (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el); }
+  else { (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document); }
 }
 
-// ══════════════════════════════════════════════
-//  BLE
-// ══════════════════════════════════════════════
+/* BLE HELP */
+function showBLEHelp() { $('bleHelpPanel').classList.add('show'); }
+function hideBLEHelp() { $('bleHelpPanel').classList.remove('show'); }
+$('bleHelpPanel').addEventListener('click',e=>{ if(e.target===$('bleHelpPanel')) hideBLEHelp(); });
+
+function isAndroid() { return /android/i.test(navigator.userAgent); }
+
+/* BLE CONNECT - Android compatible */
 async function toggleBLE() {
-  if (S.bleDevice?.gatt?.connected) { disconnectBLE(); return; }
-
-  if (!navigator.bluetooth) {
-    showBLEModal(['❌ navigator.bluetooth nahi mila.<br>Chrome mein yeh flag enable karo:<br><code style="color:var(--accent)">chrome://flags/#enable-web-bluetooth</code>']);
-    return;
+  if(S.bleDevice?.gatt?.connected) { disconnectBLE(); return; }
+  if(!navigator.bluetooth) {
+    showBLEHelp(); return;
   }
-
   try {
     setBLEStatus('scanning');
     let device;
-    try {
-      device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: [SVC_UUID] }, { namePrefix: 'FEELWORLD' }],
-        optionalServices: [SVC_UUID]
-      });
-    } catch(fe) {
-      if (fe.name === 'NotFoundError') {
-        device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SVC_UUID] });
-      } else throw fe;
+    if(isAndroid()) {
+      // Android: namePrefix filter is more reliable than service UUID filter
+      try { device=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'FEELWORLD'}],optionalServices:[SVC_UUID]}); }
+      catch { device=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC_UUID]}); }
+    } else {
+      try { device=await navigator.bluetooth.requestDevice({filters:[{services:[SVC_UUID]},{namePrefix:'FEELWORLD'}],optionalServices:[SVC_UUID]}); }
+      catch(fe) { if(fe.name==='NotFoundError') device=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC_UUID]}); else throw fe; }
     }
-
-    S.bleDevice = device;
-    device.addEventListener('gattserverdisconnected', onBLEDisc);
-    const server = await device.gatt.connect();
+    S.bleDevice=device;
+    device.addEventListener('gattserverdisconnected',onBLEDisc);
+    const server=await device.gatt.connect();
+    // Android pe thodi delay chahiye GATT stabilize hone ke liye
+    await new Promise(r=>setTimeout(r,isAndroid()?600:100));
     let svc;
-    try { svc = await server.getPrimaryService(SVC_UUID); }
-    catch { const all = await server.getPrimaryServices(); if (!all.length) throw new Error('No service'); svc = all[0]; }
-
+    try { svc=await server.getPrimaryService(SVC_UUID); }
+    catch { const all=await server.getPrimaryServices(); if(!all.length) throw new Error('No service found'); svc=all[0]; }
     let ch;
-    try { ch = await svc.getCharacteristic(CHAR_UUID); }
-    catch { const all = await svc.getCharacteristics(); ch = all.find(c => c.properties.notify) || all[0]; }
-
-    S.bleChar = ch;
-    if (ch.properties.notify) {
-      await ch.startNotifications();
-      ch.addEventListener('characteristicvaluechanged', onBLEData);
-    }
-    setBLEStatus('connected', device.name || 'Remote');
-    toast('✅ Connected: ' + (device.name || 'Remote'));
+    try { ch=await svc.getCharacteristic(CHAR_UUID); }
+    catch { const all=await svc.getCharacteristics(); ch=all.find(c=>c.properties.notify)||all[0]; }
+    S.bleChar=ch;
+    if(ch.properties.notify) { await ch.startNotifications(); ch.addEventListener('characteristicvaluechanged',onBLEData); }
+    setBLEStatus('connected',device.name||'Remote');
+    toast('Connected: '+(device.name||'Remote'));
   } catch(e) {
     setBLEStatus('disconnected');
-    if (e.name === 'NotFoundError' || e.message?.includes('cancel')) { toast('Cancelled.'); return; }
-    if (e.name === 'SecurityError') showBLEModal(['🔒 Security Error.<br>Enable flag: <code style="color:var(--accent)">chrome://flags/#enable-web-bluetooth-new-permissions-backend</code>']);
-    else toast('❌ ' + (e.message || e.name));
+    if(['NotFoundError','AbortError'].includes(e.name)||e.message?.includes('cancel')) { toast('Cancelled'); return; }
+    if(e.name==='SecurityError'||e.name==='NotSupportedError') { toast('BLE Error - ? button dekho'); showBLEHelp(); }
+    else { toast('BLE Error: '+(e.message||e.name)); console.error('BLE:',e); }
   }
 }
-
-function disconnectBLE() {
-  S.bleDevice?.gatt?.disconnect();
-  S.bleDevice = null; S.bleChar = null;
-  setBLEStatus('disconnected'); toast('Remote disconnected');
+function disconnectBLE() { S.bleDevice?.gatt?.disconnect(); S.bleDevice=null; S.bleChar=null; setBLEStatus('disconnected'); toast('Remote disconnected'); }
+function onBLEDisc() { S.bleDevice=null; S.bleChar=null; setBLEStatus('disconnected'); toast('Remote disconnected'); }
+function setBLEStatus(st,name) {
+  const btn=$('bleBtn');
+  btn.className='ble-btn'+(st==='connected'?' connected':st==='scanning'?' scanning':'');
+  $('bleTxt').textContent=st==='connected'?(name||'Connected'):st==='scanning'?'Scanning...':'Connect Remote';
+  $('gStatus').textContent=st==='connected'?'&#9679; '+(name||'OK'):st==='scanning'?'Scanning':'BLE Off';
+  $('gStatus').style.color=st==='connected'?'var(--accent)':st==='scanning'?'#ffaa00':'var(--dim)';
+  const dotColor=st==='connected'?'var(--accent)':st==='scanning'?'#ffaa00':'var(--dim)';
+  $('gDot').style.background=dotColor; $('bleDot').style.background=dotColor;
 }
-function onBLEDisc() { S.bleDevice = null; S.bleChar = null; setBLEStatus('disconnected'); toast('Remote disconnected'); }
-
-function setBLEStatus(st, name) {
-  const btn = $('bleBtn');
-  btn.className = 'ble-btn' + (st==='connected' ? ' connected' : '');
-  $('bleTxt').textContent  = st==='connected' ? (name||'Connected') : st==='scanning' ? 'Scanning...' : 'Connect Remote';
-  $('gStatus').textContent = st==='connected' ? '● '+(name||'OK') : st==='scanning' ? '◌ Scanning' : 'BLE Off';
-  $('gStatus').style.color = st==='connected' ? 'var(--accent)' : st==='scanning' ? '#ffaa00' : 'var(--dim)';
-  $('gDot').style.background = st==='connected' ? 'var(--accent)' : st==='scanning' ? '#ffaa00' : 'var(--dim)';
-  if (st==='connected') { btn.classList.add('connected'); $('bleDot').style.background = 'var(--accent)'; }
-}
-
 function onBLEData(ev) {
-  const raw = new Uint8Array(ev.target.value.buffer);
-  const d = raw.slice(2);
-  if (d.length < 6) return;
-
-  if (d[0] === 0x80 && d[1] === 0x80) {
-    // Remote mode
-    if (d[4] === 0x10) togglePlay();
-    if (d[4] === 0x40) applyColor((S.colorIdx + 1) % COLORS.length);
-    if (d[4] === 0x80) toggleFS();
-    if (d[4] === 0x20) resetAll();
-    if (d[5] === 0x02) { $('mirrorTog').checked = !$('mirrorTog').checked; onMirror(); }
-    if (d[5] === 0x08) { $('loopTog').checked = !$('loopTog').checked; toast('Loop: ' + ($('loopTog').checked ? 'ON' : 'OFF')); }
-    if (d[5] === 0x04) setMode(S.mode === 'v' ? 't' : 'v');
+  const raw=new Uint8Array(ev.target.value.buffer); const d=raw.slice(2);
+  if(d.length<6) return;
+  if(d[0]===0x80&&d[1]===0x80) {
+    if(d[4]===0x10) togglePlay();
+    if(d[4]===0x40) applyColor((S.colorIdx+1)%COLORS.length);
+    if(d[4]===0x80) toggleFS();
+    if(d[4]===0x20) resetAll();
+    if(d[5]===0x02) { $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); }
+    if(d[5]===0x08) { $('loopTog').checked=!$('loopTog').checked; toast('Loop: '+($('loopTog').checked?'ON':'OFF')); }
+    if(d[5]===0x04) setMode(S.mode==='v'?'t':'v');
   } else {
-    // Joystick mode
-    const x = d[0], y = d[1];
-    if (y === 0x00) setSpeed(S.speed + 0.1);
-    if (y === 0xFF) setSpeed(S.speed - 0.1);
-    if (x > 192 && y > 64 && y < 192) { const nv = Math.min(200, S.fontSize + 2); $('fontSlider').value = nv; setFont(nv); }
-    if (x < 64  && y > 64 && y < 192) { const nv = Math.max(20, S.fontSize - 2); $('fontSlider').value = nv; setFont(nv); }
+    const x=d[0],y=d[1];
+    if(y===0x00) setSpeed(S.speed+0.1);
+    if(y===0xFF) setSpeed(S.speed-0.1);
+    if(x>192&&y>64&&y<192) { const nv=Math.min(200,S.fontSize+2); $('fontSlider').value=nv; setFont(nv); }
+    if(x<64&&y>64&&y<192) { const nv=Math.max(20,S.fontSize-2); $('fontSlider').value=nv; setFont(nv); }
   }
 }
 
-function showBLEModal(issues) {
-  const old = document.getElementById('bleModal'); if (old) old.remove();
-  const m = document.createElement('div');
-  m.id = 'bleModal';
-  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  m.innerHTML = `<div style="background:#111115;border:1px solid var(--accent);border-radius:12px;max-width:460px;width:100%;padding:26px;font-family:'DM Sans',sans-serif;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;margin-bottom:14px;">⚠ BLE Issue</div>
-    ${issues.map(i=>`<div style="background:#0a0a0c;border-left:3px solid #ff4444;padding:10px 14px;border-radius:4px;margin-bottom:8px;font-size:13px;color:var(--text);line-height:1.7;">${i}</div>`).join('')}
-    <button onclick="document.getElementById('bleModal').remove()" style="margin-top:14px;width:100%;padding:10px;background:var(--accent);border:none;border-radius:6px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;color:#000;letter-spacing:1px;">BAND KARO</button>
-  </div>`;
-  document.body.appendChild(m);
-  m.onclick = e => { if (e.target === m) m.remove(); };
-}
-
-// ══════════════════════════════════════════════
-//  KEYBOARD
-// ══════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+/* KEYBOARD */
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
   switch(e.code) {
-    case 'Space':      e.preventDefault(); togglePlay(); break;
-    case 'ArrowUp':    e.preventDefault(); setSpeed(S.speed + 0.1); break;
-    case 'ArrowDown':  e.preventDefault(); setSpeed(S.speed - 0.1); break;
-    case 'ArrowRight': { e.preventDefault(); const nv = Math.min(200, S.fontSize+2); $('fontSlider').value=nv; setFont(nv); break; }
-    case 'ArrowLeft':  { e.preventDefault(); const nv = Math.max(20, S.fontSize-2); $('fontSlider').value=nv; setFont(nv); break; }
+    case 'Space': e.preventDefault(); togglePlay(); break;
+    case 'ArrowUp': e.preventDefault(); setSpeed(S.speed+0.1); break;
+    case 'ArrowDown': e.preventDefault(); setSpeed(S.speed-0.1); break;
+    case 'ArrowRight': { e.preventDefault(); const nv=Math.min(200,S.fontSize+2); $('fontSlider').value=nv; setFont(nv); break; }
+    case 'ArrowLeft': { e.preventDefault(); const nv=Math.max(20,S.fontSize-2); $('fontSlider').value=nv; setFont(nv); break; }
     case 'KeyR': resetAll(); break;
     case 'KeyF': toggleFS(); break;
-    case 'KeyM': $('mirrorTog').checked = !$('mirrorTog').checked; onMirror(); break;
+    case 'KeyM': $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); break;
     case 'KeyT': setMode(S.mode==='v'?'t':'v'); break;
   }
 });
 
-// ══════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════
+/* TOAST */
 function toast(msg) {
-  const c = $('toastC');
-  const d = document.createElement('div');
-  d.className = 'toast-m'; d.textContent = msg;
-  c.appendChild(d);
-  setTimeout(() => d.remove(), 2800);
+  const c=$('toastC'), d=document.createElement('div');
+  d.className='toast-m'; d.textContent=msg; c.appendChild(d);
+  setTimeout(()=>d.remove(),2800);
 }
 
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-setSpeed(1.0);
-setFont(52);
-setMg(8);
-applyColor(0);
-applyMarkers();
-updateMiniPreview();
-setMode('v');
-
-window.addEventListener('resize', () => {
-  if (S.mode === 't') positionTickerLine();
-});
+/* INIT */
+setSpeed(1.0); setFont(52); setMg(8); applyColor(0);
+applyMarkers(); updateMiniPreview(); setMode('v');
+if(isAndroid()&&!navigator.bluetooth) setTimeout(()=>toast('Android pe ? dabao BLE setup ke liye'),1500);
+window.addEventListener('resize',()=>{ if(S.mode==='t') positionTickerLine(); });
 </script>
 </body>
 </html>
