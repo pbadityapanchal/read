@@ -251,10 +251,19 @@
         <div class="key-item"><span class="kbadge">B5:0x02</span><span class="kact">Mirror</span></div>
         <div class="key-item"><span class="kbadge">B5:0x08</span><span class="kact">Loop</span></div>
         <div class="key-item"><span class="kbadge">B5:0x04</span><span class="kact">Mode Switch</span></div>
+        <div class="key-item" style="border-color:rgba(198,236,49,.5);"><span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">Y btn</span><span class="kact" style="color:var(--accent);">Fullscreen</span></div>
         <div class="key-item"><span class="kbadge">JOY&#x2191;</span><span class="kact">Speed +</span></div>
         <div class="key-item"><span class="kbadge">JOY&#x2193;</span><span class="kact">Speed -</span></div>
         <div class="key-item"><span class="kbadge">JOY&#x2192;</span><span class="kact">Font +</span></div>
         <div class="key-item"><span class="kbadge">JOY&#x2190;</span><span class="kact">Font -</span></div>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px;">*Y button = debug log se exact hex confirm karo</div>
+      <div style="margin-top:8px;">
+        <button class="btn-g" onclick="toggleBLEDebug()" style="width:100%;font-size:10px;padding:5px;">&#128269; BLE Debug Log</button>
+        <div id="bleDebugPanel" style="display:none;margin-top:6px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;max-height:200px;overflow-y:auto;">
+          <div style="font-family:monospace;font-size:9px;color:var(--dim);margin-bottom:4px;letter-spacing:1px;">Y BUTTON DABAAO — HEX YAHAN DIKHEGA</div>
+          <div id="bleLogBody"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -669,23 +678,76 @@ function setBLEStatus(st,name) {
   $('gDot').style.background=dotColor; $('bleDot').style.background=dotColor;
 }
 function onBLEData(ev) {
-  const raw=new Uint8Array(ev.target.value.buffer); const d=raw.slice(2);
-  if(d.length<6) return;
-  if(d[0]===0x80&&d[1]===0x80) {
-    if(d[4]===0x10) togglePlay();
-    if(d[4]===0x40) applyColor((S.colorIdx+1)%COLORS.length);
-    if(d[4]===0x80) toggleFS();
-    if(d[4]===0x20) resetAll();
-    if(d[5]===0x02) { $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); }
-    if(d[5]===0x08) { $('loopTog').checked=!$('loopTog').checked; toast('Loop: '+($('loopTog').checked?'ON':'OFF')); }
-    if(d[5]===0x04) setMode(S.mode==='v'?'t':'v');
+  const raw = new Uint8Array(ev.target.value.buffer);
+  const d   = raw.slice(2);
+  if (d.length < 6) return;
+
+  // Debug log — Y button press karoge to exact hex dikhega
+  bleLog(raw);
+
+  if (d[0] === 0x80 && d[1] === 0x80) {
+    // REMOTE MODE — Android APK se exact mapping
+    // data[4] actions:
+    switch(d[4]) {
+      case 0x10: togglePlay(); break;
+      case 0x40: applyColor((S.colorIdx+1)%COLORS.length); break;
+      case 0x80: toggleFS(); break;   // Lock → Fullscreen
+      case 0x20: resetAll(); break;   // Back → Reset
+    }
+    // data[5] actions:
+    switch(d[5]) {
+      case 0x02: $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); break;
+      case 0x08: $('loopTog').checked=!$('loopTog').checked; toast('Loop: '+($('loopTog').checked?'ON':'OFF')); break;
+      case 0x04: setMode(S.mode==='v'?'t':'v'); break;
+      // Y button candidates (real value will show in debug log)
+      case 0x01: case 0x10: case 0x20: case 0x40: toggleFS(); break;
+    }
+    // Also check d[3] — some buttons use this byte
+    if (d[3] && d[3] !== 0x00) {
+      switch(d[3]) {
+        case 0x01: case 0x02: case 0x04: case 0x08:
+        case 0x10: case 0x40: case 0x80: toggleFS(); break;
+      }
+    }
+
   } else {
-    const x=d[0],y=d[1];
-    if(y===0x00) setSpeed(S.speed+0.1);
-    if(y===0xFF) setSpeed(S.speed-0.1);
-    if(x>192&&y>64&&y<192) { const nv=Math.min(200,S.fontSize+2); $('fontSlider').value=nv; setFont(nv); }
-    if(x<64&&y>64&&y<192) { const nv=Math.max(20,S.fontSize-2); $('fontSlider').value=nv; setFont(nv); }
+    // JOYSTICK MODE
+    const x = d[0] & 0xFF;
+    const y = d[1] & 0xFF;
+    if (y === 0x00) setSpeed(S.speed + 0.1);
+    if (y === 0xFF) setSpeed(S.speed - 0.1);
+    if (x > 192 && y > 64 && y < 192) { const nv=Math.min(200,S.fontSize+2); $('fontSlider').value=nv; setFont(nv); }
+    if (x < 64  && y > 64 && y < 192) { const nv=Math.max(20, S.fontSize-2); $('fontSlider').value=nv; setFont(nv); }
   }
+}
+
+// BLE DEBUG LOGGER — Y button ka exact hex packet yahan dikhega
+const bleHistory = [];
+function bleLog(raw) {
+  const hex = Array.from(raw).map(b=>'0x'+b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
+  const d   = Array.from(raw.slice(2));
+  const mode = (d[0]===0x80&&d[1]===0x80) ? 'REMOTE' : 'JOY';
+  bleHistory.unshift({
+    hex, mode,
+    d3:'0x'+(d[3]||0).toString(16).padStart(2,'0').toUpperCase(),
+    d4:'0x'+(d[4]||0).toString(16).padStart(2,'0').toUpperCase(),
+    d5:'0x'+(d[5]||0).toString(16).padStart(2,'0').toUpperCase(),
+    time: new Date().toLocaleTimeString()
+  });
+  if (bleHistory.length > 15) bleHistory.pop();
+  const el = $('bleLogBody');
+  if (!el) return;
+  el.innerHTML = bleHistory.map(e=>
+    `<div style="border-bottom:1px solid #1a1a22;padding:5px 0;">
+      <span style="color:var(--accent);font-family:'Space Mono',monospace;font-size:10px;">[${e.time}] ${e.mode}</span><br>
+      <span style="color:#777;font-family:'Space Mono',monospace;font-size:9px;word-break:break-all;">${e.hex}</span><br>
+      <span style="color:#aaa;font-family:'Space Mono',monospace;font-size:10px;">d[3]:<b style="color:#fff">${e.d3}</b> d[4]:<b style="color:#fff">${e.d4}</b> d[5]:<b style="color:#fff">${e.d5}</b></span>
+    </div>`
+  ).join('');
+}
+function toggleBLEDebug() {
+  const p=$('bleDebugPanel');
+  p.style.display = p.style.display==='none'?'block':'none';
 }
 
 /* KEYBOARD */
