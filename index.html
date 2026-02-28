@@ -891,13 +891,24 @@ function highlightCenterWord() {
 // ═══════════════════════════════════════════════
 //  RESET / SEEK
 // ═══════════════════════════════════════════════
-// Back to start — script shuru mein le jao, play/pause state same rahe
+// Back to start — dono modes mein, play state same rahe
 function backToStart() {
+  const wasPlaying = S.playing;
+  // Pause RAF temporarily so transform sticks
+  if (S.rafId !== null) { cancelAnimationFrame(S.rafId); S.rafId = null; }
+  S.playing = false;
+
   S.vPos = 0; S.tPos = 0; S.timer = 0;
   $('vScroll').style.transform = 'translateY(0)';
   $('tTrack').style.transform  = 'translateX(0)';
   updateProgress(); updateTimer(); updateETA();
-  toast('Back to start ↩');
+
+  // Resume if was playing
+  if (wasPlaying) {
+    S.playing = true;
+    startRAF();
+  }
+  toast('↩ Back to start');
 }
 function resetAll() {
   pauseAll();
@@ -934,18 +945,81 @@ function updateTimer() {
 // ═══════════════════════════════════════════════
 //  FULLSCREEN — mobile compatible (document.documentElement)
 // ═══════════════════════════════════════════════
-function toggleFS() {
-  const el  = document.documentElement;
-  const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-  if (!isFS) {
-    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-    if (fn) fn.call(el).catch(()=>toast('Fullscreen error'));
-    else toast('Fullscreen supported nahi hai');
-  } else {
-    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-    if (fn) fn.call(document).catch(()=>{});
-  }
+function isFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+            document.mozFullScreenElement || document.msFullscreenElement);
 }
+
+function toggleFS() {
+  if (isFullscreen()) {
+    // Exit fullscreen
+    const fn = document.exitFullscreen || document.webkitExitFullscreen ||
+               document.mozCancelFullScreen || document.msExitFullscreen;
+    if (fn) fn.call(document);
+    return;
+  }
+  // Enter fullscreen — try multiple elements, no .catch() toast on Android
+  const targets = [document.documentElement, $('prompterArea'), document.body];
+  for (const el of targets) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen ||
+               el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (fn) {
+      // Android tab: requestFullscreen must be triggered by user gesture
+      // Remote se aane pe gesture nahi hoti — silently ignore, no error toast
+      const p = fn.call(el);
+      if (p && p.catch) p.catch(()=>{}); // silent fail, no toast
+      return;
+    }
+  }
+  // Fallback: CSS-based fake fullscreen for devices that dont support API
+  toggleCSSFullscreen();
+}
+
+// CSS Fullscreen fallback — sidebar hide, prompter takes full screen
+let _cssFS = false;
+function toggleCSSFullscreen() {
+  _cssFS = !_cssFS;
+  const pa = $('prompterArea');
+  const sb = $('sidebar');
+  const tb = document.querySelector('.topbar');
+  if (_cssFS) {
+    pa.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#000;display:flex;flex-direction:column;';
+    sb.style.display = 'none';
+    tb.style.display = 'none';
+    toast('Fullscreen ON (CSS mode)');
+  } else {
+    pa.style.cssText = '';
+    sb.style.display = '';
+    tb.style.display = '';
+    toast('Fullscreen OFF');
+    checkMobile();
+  }
+  if (S.mode === 't') setTimeout(positionTickerLine, 50);
+}
+
+// Listen for native fullscreen change — hide/show sidebar accordingly
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','msfullscreenchange'].forEach(ev => {
+  document.addEventListener(ev, () => {
+    const inFS = isFullscreen();
+    const sb = $('sidebar');
+    const tb = document.querySelector('.topbar');
+    if (inFS) {
+      // Fullscreen: hide sidebar and topbar
+      sb.setAttribute('data-fs-hidden', sb.style.display || '');
+      tb.setAttribute('data-fs-hidden', tb.style.display || '');
+      sb.style.display = 'none';
+      tb.style.display = 'none';
+    } else {
+      // Exit fullscreen: restore
+      sb.style.display = sb.getAttribute('data-fs-hidden') || '';
+      tb.style.display = tb.getAttribute('data-fs-hidden') || '';
+      sb.removeAttribute('data-fs-hidden');
+      tb.removeAttribute('data-fs-hidden');
+      checkMobile();
+      if (S.mode === 't') setTimeout(positionTickerLine, 50);
+    }
+  });
+});
 
 // ═══════════════════════════════════════════════
 //  KEYBOARD — full mapping: OK=Space, A=Enter, B=M, Y=F/Y, X=C, gamepad keys
