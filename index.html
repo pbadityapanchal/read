@@ -541,21 +541,40 @@ function updateMiniPreview() {
 })();
 
 /* PLAY / PAUSE */
-function togglePlay() { S.playing ? pauseAll() : playAll(); }
+// Debounce for mobile touch — prevent double-fire
+let _lastToggle = 0;
+function togglePlay() {
+  const now = Date.now();
+  if (now - _lastToggle < 300) return; // 300ms debounce
+  _lastToggle = now;
+  S.playing ? pauseAll() : playAll();
+}
 function playAll() {
-  S.playing=true; $('playBtn').innerHTML='&#9646;&#9646;';
-  $('playBtn').style.background='var(--red)'; $('playBtn').style.borderColor='var(--red)';
+  if (S.playing) return; // guard against double call
+  S.playing=true;
+  $('playBtn').innerHTML='&#9646;&#9646;';
+  $('playBtn').style.background='var(--red)';
+  $('playBtn').style.borderColor='var(--red)';
   clearInterval(S.timerInterval);
   S.timerInterval=setInterval(()=>{ S.timer++; updateTimer(); },1000);
   startRAF();
 }
 function pauseAll() {
-  S.playing=false; $('playBtn').innerHTML='&#9654;';
-  $('playBtn').style.background='var(--accent)'; $('playBtn').style.borderColor='var(--accent)';
-  clearInterval(S.timerInterval); cancelAnimationFrame(S.rafId);
+  S.playing=false;
+  $('playBtn').innerHTML='&#9654;';
+  $('playBtn').style.background='var(--accent)';
+  $('playBtn').style.borderColor='var(--accent)';
+  clearInterval(S.timerInterval);
+  if (S.rafId) { cancelAnimationFrame(S.rafId); S.rafId=null; }
 }
 function startRAF() {
-  function frame() { if(!S.playing) return; S.mode==='v'?scrollVertical():scrollTicker(); S.rafId=requestAnimationFrame(frame); }
+  // Cancel any existing RAF first to prevent double-loops on mobile
+  if (S.rafId) { cancelAnimationFrame(S.rafId); S.rafId=null; }
+  function frame() {
+    if (!S.playing) { S.rafId=null; return; }
+    if (S.mode==='v') scrollVertical(); else scrollTicker();
+    S.rafId=requestAnimationFrame(frame);
+  }
   S.rafId=requestAnimationFrame(frame);
 }
 
@@ -613,11 +632,19 @@ function updateTimer() {
   $('timerEl').textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
 }
 
-/* FULLSCREEN */
+/* FULLSCREEN — mobile compatible */
 function toggleFS() {
-  const el=$('prompterArea');
-  if(!document.fullscreenElement) { (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el); }
-  else { (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document); }
+  // Mobile pe prompterArea fullscreen nahi hota, documentElement use karo
+  const el = document.documentElement;
+  const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+  if (!isFS) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (fn) fn.call(el).catch(()=>{ toast('Fullscreen error'); });
+    else toast('Fullscreen supported nahi hai is browser mein');
+  } else {
+    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if (fn) fn.call(document).catch(()=>{});
+  }
 }
 
 /* BLE HELP */
