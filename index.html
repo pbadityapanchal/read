@@ -208,6 +208,57 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .step-tag{display:inline-block;background:rgba(198,236,49,.15);color:var(--accent);font-family:'Space Mono',monospace;font-size:8px;padding:2px 5px;border-radius:3px;margin-bottom:3px;letter-spacing:1px;}
 .close-btn{margin-top:12px;width:100%;padding:9px;background:var(--accent);border:none;border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;color:#000;letter-spacing:1px;}
 
+
+/* ── VERTICAL MODE — 3 MARKERS ── */
+/* Wrapper: absolute over v-mode, pointer-events none so scroll still works */
+#vMarkerWrap{
+  position:absolute;inset:0;z-index:12;pointer-events:none;
+}
+/* 1. Horizontal reading line — drag up/down */
+#vReadLine{
+  position:absolute;left:0;right:0;height:3px;
+  background:rgba(198,236,49,.6);
+  cursor:ns-resize;pointer-events:all;
+  transition:top .05s;
+}
+#vReadLine::after{
+  content:'◀ READ ▶';
+  position:absolute;right:10px;top:-16px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;
+  color:rgba(198,236,49,.55);pointer-events:none;white-space:nowrap;
+}
+/* 2. Left vertical marker — drag left/right */
+#vMarkL{
+  position:absolute;top:0;bottom:0;width:3px;
+  background:rgba(255,90,90,.75);
+  cursor:ew-resize;pointer-events:all;
+  z-index:13;
+}
+#vMarkL::after{
+  content:'L';position:absolute;top:8px;left:4px;
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:rgba(255,90,90,.9);font-weight:700;pointer-events:none;
+}
+/* Wide invisible hit-area for easier drag */
+#vMarkL::before{content:'';position:absolute;top:0;bottom:0;left:-8px;right:-8px;}
+/* 3. Right vertical marker */
+#vMarkR{
+  position:absolute;top:0;bottom:0;width:3px;
+  background:rgba(90,180,255,.75);
+  cursor:ew-resize;pointer-events:all;
+  z-index:13;
+}
+#vMarkR::after{
+  content:'R';position:absolute;top:8px;right:4px;
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:rgba(90,180,255,.9);font-weight:700;pointer-events:none;
+}
+#vMarkR::before{content:'';position:absolute;top:0;bottom:0;left:-8px;right:-8px;}
+/* Zone highlight between L and R */
+#vZone{
+  position:absolute;top:0;bottom:0;
+  background:rgba(255,255,255,.025);pointer-events:none;z-index:11;
+}
 /* Scrollbar */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -464,6 +515,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       </div>
     </div>
 
+    <!-- Vertical Markers Controls (shown in v mode) -->
+    <div class="ticker-controls" id="vertCtrlSection">
+      <div class="lbl">Vert Markers</div>
+      <div class="ctrl-row">
+        <div class="ctrl-lbl" style="color:rgba(198,236,49,.9);">&#9135; Read Line</div>
+        <input type="range" id="vReadSlider" min="2" max="98" value="50" oninput="setVRead(this.value)">
+        <div class="ctrl-val" id="vReadVal" style="color:rgba(198,236,49,.9);">50%</div>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);">&#9474; L Marker</div>
+        <input type="range" id="vMarkLSlider" min="0" max="98" value="5" oninput="setVMarkL(this.value)">
+        <div class="ctrl-val" id="vMarkLVal" style="color:rgba(255,90,90,.9);">5%</div>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);">&#9474; R Marker</div>
+        <input type="range" id="vMarkRSlider" min="2" max="100" value="95" oninput="setVMarkR(this.value)">
+        <div class="ctrl-val" id="vMarkRVal" style="color:rgba(90,180,255,.9);">95%</div>
+      </div>
+    </div>
+
     <!-- Ticker Controls -->
     <div class="ticker-controls" id="tickerCtrlSection" style="display:none;">
       <div class="lbl">Ticker Position</div>
@@ -575,6 +646,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="v-mode" id="vMode">
       <div class="v-fade-t" id="vFadeT"></div>
       <div class="v-fade-b" id="vFadeB"></div>
+      <!-- 3 independent markers overlay -->
+      <div id="vMarkerWrap">
+        <div id="vZone"></div>
+        <div id="vReadLine" style="top:50%;"></div>
+        <div id="vMarkL" style="left:5%;"></div>
+        <div id="vMarkR" style="left:95%;"></div>
+      </div>
       <div id="vScroll" style="will-change:transform;padding:50vh 8% 50vh;">
         <div class="v-text" id="vText">Apna script sidebar mein likho aur Load dabao.
 
@@ -878,6 +956,8 @@ function setMode(m) {
   $('vMode').style.display  = m==='v' ? 'block' : 'none';
   $('tMode').classList.toggle('on', m==='t');
   $('tickerCtrlSection').style.display = m==='t' ? 'block' : 'none';
+  $('vertCtrlSection').style.display   = m==='v' ? 'block' : 'none';
+  $('vMarkerWrap').style.display        = m==='v' ? 'block' : 'none';
   $('mgRow').style.display  = m==='v' ? 'flex' : 'none';
   if (m==='t') positionTickerLine();
   setTimeout(calcETA, 100);
@@ -968,6 +1048,108 @@ function updateMiniPreview() {
   }
   makeDraggable($('markerL'), true);
   makeDraggable($('markerR'), false);
+})();
+
+// ═══════════════════════════════════════════════
+//  VERTICAL MODE — 3 INDEPENDENT MARKERS
+// ═══════════════════════════════════════════════
+// State for vertical markers (% of v-mode height)
+S.vRead = 50;   // horizontal reading line
+S.vMarkL = 5;   // left vertical marker
+S.vMarkR = 95;  // right vertical marker
+
+function setVRead(pct) {
+  S.vRead = Math.max(2, Math.min(98, parseInt(pct)));
+  $('vReadSlider').value = S.vRead;
+  $('vReadVal').textContent = S.vRead + '%';
+  $('vReadLine').style.top = S.vRead + '%';
+}
+function setVMarkL(pct) {
+  S.vMarkL = Math.max(0, Math.min(S.vMarkR - 2, parseInt(pct)));
+  $('vMarkLSlider').value = S.vMarkL;
+  $('vMarkLVal').textContent = S.vMarkL + '%';
+  $('vMarkL').style.left = S.vMarkL + '%';
+  applyVZone();
+}
+function setVMarkR(pct) {
+  S.vMarkR = Math.max(S.vMarkL + 2, Math.min(100, parseInt(pct)));
+  $('vMarkRSlider').value = S.vMarkR;
+  $('vMarkRVal').textContent = S.vMarkR + '%';
+  $('vMarkR').style.left = S.vMarkR + '%';
+  applyVZone();
+}
+function applyVZone() {
+  $('vZone').style.left  = S.vMarkL + '%';
+  $('vZone').style.width = (S.vMarkR - S.vMarkL) + '%';
+}
+
+// Drag: reading line (up-down)
+(function initVReadDrag() {
+  const el = $('vReadLine');
+  let dragging = false;
+  el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); });
+  el.addEventListener('touchstart', e => { dragging=true; }, {passive:true});
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+    setVRead(pct);
+  });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.touches[0].clientY - rect.top) / rect.height) * 100);
+    setVRead(pct);
+  }, {passive:true});
+  const stop = () => { dragging = false; };
+  document.addEventListener('mouseup',  stop);
+  document.addEventListener('touchend', stop);
+})();
+
+// Drag: left vertical marker (left-right)
+(function initVMarkLDrag() {
+  const el = $('vMarkL');
+  let dragging = false;
+  el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); e.stopPropagation(); });
+  el.addEventListener('touchstart', e => { dragging=true; e.stopPropagation(); }, {passive:true});
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    setVMarkL(pct);
+  });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.touches[0].clientX - rect.left) / rect.width) * 100);
+    setVMarkL(pct);
+  }, {passive:true});
+  const stop = () => { dragging = false; };
+  document.addEventListener('mouseup',  stop);
+  document.addEventListener('touchend', stop);
+})();
+
+// Drag: right vertical marker (left-right)
+(function initVMarkRDrag() {
+  const el = $('vMarkR');
+  let dragging = false;
+  el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); e.stopPropagation(); });
+  el.addEventListener('touchstart', e => { dragging=true; e.stopPropagation(); }, {passive:true});
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    setVMarkR(pct);
+  });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const rect = $('vMode').getBoundingClientRect();
+    const pct  = Math.round(((e.touches[0].clientX - rect.left) / rect.width) * 100);
+    setVMarkR(pct);
+  }, {passive:true});
+  const stop = () => { dragging = false; };
+  document.addEventListener('mouseup',  stop);
+  document.addEventListener('touchend', stop);
 })();
 
 // ═══════════════════════════════════════════════
@@ -1458,7 +1640,7 @@ function onBLEData(ev) {
     }
     switch(d[5]) {
       case 0x02: $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); break;
-      case 0x08: bleRewindHold(); break; // A button hold = rewind
+      case 0x08: (isFullscreen()||_cssFS) ? toggleFSMenu() : toggleFS(); break;
       case 0x04: setMode(S.mode==='v'?'t':'v'); break;
     }
   } else {
@@ -1507,6 +1689,7 @@ function toast(msg) {
 // ═══════════════════════════════════════════════
 setSpeed(1.0); setFont(52); setMg(8); applyColor(0);
 applyMarkers(); updateMiniPreview(); setMode('v');
+setVRead(50); setVMarkL(5); setVMarkR(95); applyVZone();
 if(isAndroid()&&!navigator.bluetooth) setTimeout(()=>toast('Android: ? dabao BLE setup ke liye'),1500);
 window.addEventListener('resize', ()=>{
   checkMobile();
