@@ -939,9 +939,11 @@ function highlightCenterWord() {
 // Button uthao to ruk jaye current position pe
 let _rewindRAF = null;
 let _rewindPlaying = false; // was playing before rewind started
+let _rewindActive = false;  // toggle state for Y button
 
 function startRewind() {
   if (_rewindRAF !== null) return; // already rewinding
+  _rewindActive = true;
   _rewindPlaying = S.playing;
   // Pause forward scroll
   if (S.rafId !== null) { cancelAnimationFrame(S.rafId); S.rafId = null; }
@@ -968,12 +970,19 @@ function startRewind() {
 
 function stopRewind() {
   if (_rewindRAF !== null) { cancelAnimationFrame(_rewindRAF); _rewindRAF = null; }
+  _rewindActive = false;
   // Resume forward if was playing
   if (_rewindPlaying) {
     S.playing = true;
     startRAF();
   }
   _rewindPlaying = false;
+}
+
+// Toggle rewind — ek baar dabao = shuru, dobara dabao = band
+function toggleRewind() {
+  if (_rewindActive) stopRewind();
+  else startRewind();
 }
 
 // Legacy backToStart (instant jump) — not used for A button now
@@ -1115,9 +1124,9 @@ document.addEventListener('keydown', e => {
       e.preventDefault(); togglePlay(); break;
     case 'KeyF':
       e.preventDefault(); toggleFS(); break;
-    // Y = back to start (hold to rewind)
+    // Y = toggle rewind (ek baar = shuru, dobara = band + forward)
     case 'KeyY':
-      e.preventDefault(); if (!e.repeat) startRewind(); break;
+      e.preventDefault(); if (!e.repeat) toggleRewind(); break;
     case 'KeyB': case 'KeyM':
       $('mirrorTog').checked = !$('mirrorTog').checked; onMirror(); break;
     // A — hold to rewind, release to stop
@@ -1138,7 +1147,8 @@ document.addEventListener('keydown', e => {
   }
 });
 document.addEventListener('keyup', e => {
-  if (e.code === 'KeyA' || e.code === 'KeyY') stopRewind();
+  // A = hold to rewind (stop on release), Y = toggle (no stop on release)
+  if (e.code === 'KeyA') stopRewind();
 });
 
 // ═══════════════════════════════════════════════
@@ -1283,7 +1293,7 @@ function onBLEData(ev) {
     switch(d[4]) {
       case 0x10: togglePlay(); break;
       case 0x40: applyColor((S.colorIdx+1)%COLORS.length); break;
-      case 0x80: bleRewindHold(); break; // Y btn → back to start (hold)
+      case 0x80: toggleRewind(); break; // Y btn → toggle rewind
       case 0x20: resetAll(); break;    // Back btn → Reset
     }
     switch(d[5]) {
