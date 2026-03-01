@@ -556,19 +556,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
       <!-- L Margin (Red - clips text on left, text starts from here) -->
       <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(255,90,90,.8);letter-spacing:1px;margin-bottom:5px;">&#9474; LEFT CLIP MARGIN</div>
-      <div class="ctrl-row" style="margin-bottom:10px;">
+      <div class="ctrl-row" style="margin-bottom:4px;">
         <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);font-size:10px;">Position</div>
         <input type="range" id="vMarkLSlider" min="0" max="45" value="5" oninput="setVMarkL(this.value)">
         <div class="ctrl-val" id="vMarkLVal" style="color:rgba(255,90,90,.9);">5%</div>
       </div>
 
+      <!-- LEFT CLIP MARGIN right-side highlight shadow -->
+      <div class="ctrl-row" style="margin-top:-6px;margin-bottom:4px;">
+        <div class="ctrl-lbl" style="font-size:10px;color:rgba(255,90,90,.8);">&#9658; Right Highlight</div>
+        <input type="range" id="vMarkLRightSlider" min="0" max="100" value="0" oninput="applyVMarkShadow()">
+        <div class="ctrl-val" id="vMarkLRightVal">0%</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px;" id="vMarkLRightColors"></div>
+
       <!-- R Margin (Blue - clips text on right, text ends here) -->
       <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(90,180,255,.8);letter-spacing:1px;margin-bottom:5px;">&#9474; RIGHT CLIP MARGIN</div>
-      <div class="ctrl-row" style="margin-bottom:10px;">
+      <div class="ctrl-row" style="margin-bottom:4px;">
         <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);font-size:10px;">Position</div>
         <input type="range" id="vMarkRSlider" min="55" max="100" value="95" oninput="setVMarkR(this.value)">
         <div class="ctrl-val" id="vMarkRVal" style="color:rgba(90,180,255,.9);">95%</div>
       </div>
+
+      <!-- RIGHT CLIP MARGIN left-side highlight shadow -->
+      <div class="ctrl-row" style="margin-bottom:4px;">
+        <div class="ctrl-lbl" style="font-size:10px;color:rgba(90,180,255,.8);">&#9668; Left Highlight</div>
+        <input type="range" id="vMarkRLeftSlider" min="0" max="100" value="0" oninput="applyVMarkShadow()">
+        <div class="ctrl-val" id="vMarkRLeftVal">0%</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px;" id="vMarkRLeftColors"></div>
 
       <!-- Bottom Line (Yellow - horizontal) -->
       <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(255,210,0,.8);letter-spacing:1px;margin-bottom:5px;">&#9135; BOTTOM LINE</div>
@@ -612,11 +628,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <input type="range" id="markerLSlider" min="0" max="50" value="10" oninput="setMarkerL(this.value)">
         <div class="ctrl-val" id="markerLVal" style="color:rgba(255,90,90,.9);">10%</div>
       </div>
+      <!-- L Marker right-side highlight -->
+      <div class="ctrl-row" style="margin-bottom:4px;">
+        <div class="ctrl-lbl" style="font-size:10px;color:rgba(255,90,90,.8);">&#9658; Right Highlight</div>
+        <input type="range" id="tMarkLRightSlider" min="0" max="100" value="0" oninput="applyTickerMarkShadow()">
+        <div class="ctrl-val" id="tMarkLRightVal">0%</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;" id="tMarkLRightColors"></div>
+
       <div class="ctrl-row">
         <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);">R Marker</div>
         <input type="range" id="markerRSlider" min="50" max="100" value="85" oninput="setMarkerR(this.value)">
         <div class="ctrl-val" id="markerRVal" style="color:rgba(90,180,255,.9);">85%</div>
       </div>
+      <!-- R Marker left-side highlight -->
+      <div class="ctrl-row" style="margin-bottom:4px;">
+        <div class="ctrl-lbl" style="font-size:10px;color:rgba(90,180,255,.8);">&#9668; Left Highlight</div>
+        <input type="range" id="tMarkRLeftSlider" min="0" max="100" value="0" oninput="applyTickerMarkShadow()">
+        <div class="ctrl-val" id="tMarkRLeftVal">0%</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;" id="tMarkRLeftColors"></div>
 
       <!-- L Shadow (left of L marker) -->
       <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(255,90,90,.8);letter-spacing:1px;margin:8px 0 4px;">&#9830; LEFT SHADOW</div>
@@ -780,6 +811,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <!-- Left/Right clip panels — text ko L/R markers ke andar rakhte hain -->
         <div id="vClipLeft"  style="position:absolute;top:0;bottom:0;left:0;width:5%;background:#000;pointer-events:none;z-index:19;transition:width .05s;"></div>
         <div id="vClipRight" style="position:absolute;top:0;bottom:0;right:0;width:5%;background:#000;pointer-events:none;z-index:19;transition:width .05s;"></div>
+        <!-- L marker right-side highlight / R marker left-side highlight -->
+        <div id="vMarkLRightShadow" style="position:absolute;top:0;bottom:0;pointer-events:none;z-index:18;"></div>
+        <div id="vMarkRLeftShadow"  style="position:absolute;top:0;bottom:0;pointer-events:none;z-index:18;"></div>
       </div>
       <div id="vScroll" style="will-change:transform;padding:50vh 8% 50vh;">
         <div class="v-text" id="vText">Apna script sidebar mein likho aur Load dabao.
@@ -799,6 +833,9 @@ PBworld remote ya keyboard se full control milega.</div>
         <div class="marker-left" id="markerL"></div>
         <div class="marker-right" id="markerR"></div>
         <div class="marker-zone" id="markerZone"></div>
+        <!-- L Marker right-side and R Marker left-side highlight overlays -->
+        <div id="tMarkLRightShadow" style="position:absolute;top:0;bottom:0;pointer-events:none;z-index:4;"></div>
+        <div id="tMarkRLeftShadow"  style="position:absolute;top:0;bottom:0;pointer-events:none;z-index:4;"></div>
         <div class="t-track" id="tTrack">
           <div class="t-text" id="tText">
             <span class="t-word">Script</span><span class="t-word">load</span><span class="t-word">karo</span>
@@ -1156,6 +1193,7 @@ function applyMarkers() {
   $('markerZone').style.width = (S.markerR-S.markerL)+'%';
   updateMiniPreview();
   if(typeof applyTickerShadow === 'function') applyTickerShadow();
+  if(typeof applyTickerMarkShadow === 'function') applyTickerMarkShadow();
 }
 function updateMiniPreview() {
   $('miniLine').style.top = S.tLineY+'%';
@@ -1233,6 +1271,7 @@ function setVMarkR(pct) {
 function applyVZone() {
   $('vZone').style.left  = S.vMarkL + '%';
   $('vZone').style.width = (S.vMarkR - S.vMarkL) + '%';
+  if(typeof applyVMarkShadow === 'function') applyVMarkShadow();
 }
 
 // ═══════════════════════════════════════════════
@@ -1320,6 +1359,66 @@ function applyTickerBgShadow() {
 buildShadowPalette('tBgShadowColors','tBgShadowColor', applyTickerBgShadow);
 applyTickerBgShadow();
 
+// ═══════════════════════════════════════════════
+//  TICKER MODE — L Marker right highlight / R Marker left highlight
+// ═══════════════════════════════════════════════
+S.tMarkLRightColor = 0;
+S.tMarkRLeftColor  = 0;
+
+function buildTickerMarkHighlightPalette(containerId, stateKey) {
+  const wrap = $(containerId);
+  SHADOW_COLORS.forEach((col, i) => {
+    const s = document.createElement('div');
+    s.style.cssText = `width:18px;height:18px;border-radius:3px;cursor:pointer;background:${col};border:2px solid ${i===0?'var(--accent)':'transparent'};box-sizing:border-box;flex-shrink:0;`;
+    s.title = col;
+    s.onclick = () => {
+      S[stateKey] = i;
+      wrap.querySelectorAll('div').forEach((el,j) => el.style.borderColor = j===i ? 'var(--accent)' : 'transparent');
+      applyTickerMarkShadow();
+    };
+    wrap.appendChild(s);
+  });
+}
+
+function applyTickerMarkShadow() {
+  // L Marker right-side: gradient from markerL% rightward
+  const lVal = parseInt($('tMarkLRightSlider').value);
+  $('tMarkLRightVal').textContent = lVal + '%';
+  const lEl = $('tMarkLRightShadow');
+  if (lVal === 0) {
+    lEl.style.left = '0'; lEl.style.width = '0'; lEl.style.background = 'none';
+  } else {
+    const lCol = SHADOW_COLORS[S.tMarkLRightColor];
+    const lRgb = hexToRgb(lCol);
+    const lOp  = (lVal / 100).toFixed(2);
+    const lW   = Math.min(40, lVal * 0.4);
+    lEl.style.left       = S.markerL + '%';
+    lEl.style.width      = lW + '%';
+    lEl.style.background = `linear-gradient(to right, rgba(${lRgb},${lOp}) 0%, rgba(${lRgb},0) 100%)`;
+  }
+
+  // R Marker left-side: gradient from markerR% leftward
+  const rVal = parseInt($('tMarkRLeftSlider').value);
+  $('tMarkRLeftVal').textContent = rVal + '%';
+  const rEl = $('tMarkRLeftShadow');
+  if (rVal === 0) {
+    rEl.style.left = '0'; rEl.style.width = '0'; rEl.style.background = 'none';
+  } else {
+    const rCol = SHADOW_COLORS[S.tMarkRLeftColor];
+    const rRgb = hexToRgb(rCol);
+    const rOp  = (rVal / 100).toFixed(2);
+    const rW   = Math.min(40, rVal * 0.4);
+    rEl.style.right      = (100 - S.markerR) + '%';
+    rEl.style.left       = 'auto';
+    rEl.style.width      = rW + '%';
+    rEl.style.background = `linear-gradient(to left, rgba(${rRgb},${rOp}) 0%, rgba(${rRgb},0) 100%)`;
+  }
+}
+
+buildTickerMarkHighlightPalette('tMarkLRightColors','tMarkLRightColor');
+buildTickerMarkHighlightPalette('tMarkRLeftColors','tMarkRLeftColor');
+applyTickerMarkShadow();
+
 // Bottom line
 function setVBot(pct) {
   S.vBot = Math.max(2, Math.min(98, parseInt(pct)));
@@ -1386,6 +1485,65 @@ buildVShadowPalette('vReadBelowColors','vReadBelowColor');
 buildVShadowPalette('vBotAboveColors', 'vBotAboveColor');
 buildVShadowPalette('vBotBelowColors', 'vBotBelowColor');
 applyVShadow();
+
+// ═══════════════════════════════════════════════
+//  VERT MODE — L marker right highlight / R marker left highlight
+// ═══════════════════════════════════════════════
+S.vMarkLRightColor = 0;
+S.vMarkRLeftColor  = 0;
+
+function buildVMarkHighlightPalette(containerId, stateKey) {
+  const wrap = $(containerId);
+  SHADOW_COLORS.forEach((col, i) => {
+    const s = document.createElement('div');
+    s.style.cssText = `width:16px;height:16px;border-radius:3px;cursor:pointer;background:${col};border:2px solid ${i===0?'var(--accent)':'transparent'};box-sizing:border-box;flex-shrink:0;`;
+    s.onclick = () => {
+      S[stateKey] = i;
+      wrap.querySelectorAll('div').forEach((el,j) => el.style.borderColor = j===i ? 'var(--accent)' : 'transparent');
+      applyVMarkShadow();
+    };
+    wrap.appendChild(s);
+  });
+}
+
+function applyVMarkShadow() {
+  // L marker right side: from vMarkL% to right, gradient fades rightward
+  const lVal = parseInt($('vMarkLRightSlider').value);
+  $('vMarkLRightVal').textContent = lVal + '%';
+  const lEl = $('vMarkLRightShadow');
+  if (lVal === 0) {
+    lEl.style.left = '0'; lEl.style.width = '0'; lEl.style.background = 'none';
+  } else {
+    const lCol = SHADOW_COLORS[S.vMarkLRightColor];
+    const lRgb = hexToRgb(lCol);
+    const lOp  = (lVal / 100).toFixed(2);
+    const lW   = Math.min(40, lVal * 0.4); // width as % of screen
+    lEl.style.left       = S.vMarkL + '%';
+    lEl.style.width      = lW + '%';
+    lEl.style.background = `linear-gradient(to right, rgba(${lRgb},${lOp}) 0%, rgba(${lRgb},0) 100%)`;
+  }
+
+  // R marker left side: from right of screen up to vMarkR%, gradient fades leftward
+  const rVal = parseInt($('vMarkRLeftSlider').value);
+  $('vMarkRLeftVal').textContent = rVal + '%';
+  const rEl = $('vMarkRLeftShadow');
+  if (rVal === 0) {
+    rEl.style.left = '0'; rEl.style.width = '0'; rEl.style.background = 'none';
+  } else {
+    const rCol = SHADOW_COLORS[S.vMarkRLeftColor];
+    const rRgb = hexToRgb(rCol);
+    const rOp  = (rVal / 100).toFixed(2);
+    const rW   = Math.min(40, rVal * 0.4);
+    rEl.style.right      = (100 - S.vMarkR) + '%';
+    rEl.style.left       = 'auto';
+    rEl.style.width      = rW + '%';
+    rEl.style.background = `linear-gradient(to left, rgba(${rRgb},${rOp}) 0%, rgba(${rRgb},0) 100%)`;
+  }
+}
+
+buildVMarkHighlightPalette('vMarkLRightColors','vMarkLRightColor');
+buildVMarkHighlightPalette('vMarkRLeftColors','vMarkRLeftColor');
+applyVMarkShadow();
 
 // ─── Drag helpers ───
 function makeDragV(elId, onMove) {
