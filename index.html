@@ -48,6 +48,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
   transition:transform .3s;
 }
+/* Fullscreen me sidebar overlay ke taur pe aata hai */
+.sidebar.fs-overlay{
+  position:fixed;top:0;left:0;bottom:0;z-index:9998;
+  transform:translateX(-100%);
+  width:min(300px,90vw);
+}
+.sidebar.fs-overlay.open{transform:translateX(0);}
 .sb{padding:12px 14px;border-bottom:1px solid var(--border);}
 .lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
 textarea#scriptInput{width:100%;height:120px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px;resize:none;outline:none;transition:border-color .2s;}
@@ -203,20 +210,32 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 ::-webkit-scrollbar-thumb{background:var(--border);}
 
 /* ── RESPONSIVE MOBILE ── */
+/* ── TABLET (641–1024px) ── */
+@media(max-width:1024px) and (min-width:641px){
+  :root{ --sb:260px; }
+}
+/* ── MOBILE (≤640px) ── */
 @media(max-width:640px){
-  :root{ --sb:100%; }
   .sidebar{
-    position:fixed;top:52px;left:0;right:0;bottom:0;z-index:100;
-    width:100%;transform:translateX(-100%);
+    position:fixed;top:52px;left:0;bottom:0;z-index:200;
+    width:min(280px,85vw);transform:translateX(-100%);
+    box-shadow:4px 0 20px rgba(0,0,0,.7);
   }
   .sidebar.open{transform:translateX(0);}
-  .topbar{padding:0 10px;gap:6px;}
-  .brand{font-size:15px;letter-spacing:2px;}
-  #bleStatusText{display:none;} /* hide text on mobile, keep dot */
-  .ble-btn span{display:none;} /* hide text, show dot only */
-  .ble-btn{padding:6px;min-width:32px;justify-content:center;}
-  .ctrl-bar{padding:0 10px;gap:6px;}
+  /* Overlay backdrop when sidebar open on mobile */
+  .sidebar.open::after{
+    content:'';position:fixed;top:0;left:min(280px,85vw);right:0;bottom:0;
+    background:rgba(0,0,0,.5);z-index:-1;
+  }
+  .topbar{padding:0 8px;gap:5px;}
+  .brand{font-size:14px;letter-spacing:2px;}
+  .ble-btn span{display:none;}
+  .ble-btn{padding:5px 8px;}
+  .ctrl-bar{padding:0 8px;gap:6px;min-height:52px;}
+  .cbtn{width:40px;height:40px;font-size:15px;}
+  .cbtn.play{width:46px;height:46px;font-size:18px;}
   .timer{font-size:10px;}
+  .eta-inline{font-size:9px;}
 }
 </style>
 </head>
@@ -227,7 +246,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="brand">FEEL<span>WORLD</span></div>
 
   <!-- Mobile: sidebar toggle -->
-  <button class="btn-g" id="sidebarToggle" onclick="toggleSidebar()" style="padding:5px 10px;font-size:12px;display:none;">☰</button>
+  <button class="btn-g" id="sidebarToggle" onclick="toggleSidebar()" style="padding:5px 10px;font-size:16px;" title="Menu">&#9776;</button>
 
   <div class="mode-tabs" style="margin-left:8px;">
     <button class="m-tab on" id="tabV" onclick="setMode('v')">&#x2195; Vert</button>
@@ -484,6 +503,17 @@ FEELWORLD remote ya keyboard se full control milega.</div>
 
 <div class="toast-c" id="toastC"></div>
 
+<!-- Floating ☰ button — only visible in fullscreen, opens sidebar -->
+<div id="fabMenu" onclick="toggleSidebar()" style="
+  display:none; position:fixed; top:12px; left:12px; z-index:9999;
+  width:42px; height:42px; border-radius:8px;
+  background:rgba(17,17,21,0.85); border:1px solid var(--border);
+  align-items:center; justify-content:center; cursor:pointer;
+  font-size:18px; color:var(--accent); backdrop-filter:blur(8px);
+  box-shadow:0 2px 12px rgba(0,0,0,.6);
+  transition:background .2s;
+" title="Menu">&#9776;</div>
+
 <!-- BLE HELP PANEL -->
 <div class="overlay-panel" id="bleHelpPanel">
   <div class="panel-box">
@@ -543,12 +573,26 @@ const $ = id => document.getElementById(id);
 // ═══════════════════════════════════════════════
 function isMobile() { return window.innerWidth <= 640; }
 function toggleSidebar() {
-  $('sidebar').classList.toggle('open');
+  const sb   = $('sidebar');
+  const inFS = isFullscreen() || _cssFS;
+  if (inFS) {
+    sb.classList.add('fs-overlay');
+    sb.classList.toggle('open');
+  } else if (isMobile()) {
+    sb.classList.remove('fs-overlay');
+    sb.classList.toggle('open');
+  } else {
+    // Desktop/tablet: sidebar hide/show by toggling display
+    const hidden = sb.style.display === 'none';
+    sb.style.display = hidden ? '' : 'none';
+    // Prompter area resize ke baad ticker reposition
+    if (S && S.mode === 't') setTimeout(positionTickerLine, 50);
+  }
 }
 function checkMobile() {
   const mob = isMobile();
-  $('sidebarToggle').style.display = mob ? 'block' : 'none';
-  $('sidebarClose').style.display  = mob ? 'block' : 'none';
+  // sidebarToggle hamesha visible — mobile aur desktop dono pe
+  $('sidebarClose').style.display = mob ? 'block' : 'none';
   if (!mob) $('sidebar').classList.remove('open');
 }
 window.addEventListener('resize', checkMobile);
@@ -891,24 +935,52 @@ function highlightCenterWord() {
 // ═══════════════════════════════════════════════
 //  RESET / SEEK
 // ═══════════════════════════════════════════════
-// Back to start — dono modes mein, play state same rahe
-function backToStart() {
-  const wasPlaying = S.playing;
-  // Pause RAF temporarily so transform sticks
+// REWIND — jab tak button dabye rakho tab tak peeche jaye
+// Button uthao to ruk jaye current position pe
+let _rewindRAF = null;
+let _rewindPlaying = false; // was playing before rewind started
+
+function startRewind() {
+  if (_rewindRAF !== null) return; // already rewinding
+  _rewindPlaying = S.playing;
+  // Pause forward scroll
   if (S.rafId !== null) { cancelAnimationFrame(S.rafId); S.rafId = null; }
   S.playing = false;
 
-  S.vPos = 0; S.tPos = 0; S.timer = 0;
-  $('vScroll').style.transform = 'translateY(0)';
-  $('tTrack').style.transform  = 'translateX(0)';
-  updateProgress(); updateTimer(); updateETA();
+  function rewindFrame() {
+    const rewindSpeed = S.speed * 3; // 3x speed backwards
+    if (S.mode === 'v') {
+      S.vPos = Math.max(0, S.vPos - rewindSpeed);
+      $('vScroll').style.transform = `translateY(-${S.vPos}px)`;
+    } else {
+      S.tPos = Math.max(0, S.tPos - rewindSpeed);
+      $('tTrack').style.transform = `translateX(${-1 * S.tPos}px)`;
+    }
+    updateProgress(); updateETA();
+    // Stop at beginning
+    if ((S.mode === 'v' && S.vPos <= 0) || (S.mode === 't' && S.tPos <= 0)) {
+      stopRewind(); return;
+    }
+    _rewindRAF = requestAnimationFrame(rewindFrame);
+  }
+  _rewindRAF = requestAnimationFrame(rewindFrame);
+}
 
-  // Resume if was playing
-  if (wasPlaying) {
+function stopRewind() {
+  if (_rewindRAF !== null) { cancelAnimationFrame(_rewindRAF); _rewindRAF = null; }
+  // Resume forward if was playing
+  if (_rewindPlaying) {
     S.playing = true;
     startRAF();
   }
-  toast('↩ Back to start');
+  _rewindPlaying = false;
+}
+
+// Legacy backToStart (instant jump) — not used for A button now
+function backToStart() {
+  startRewind();
+  // Auto-stop immediately for instant jump (used by reset)
+  setTimeout(()=>{ if(_rewindRAF!==null){cancelAnimationFrame(_rewindRAF);_rewindRAF=null;} }, 0);
 }
 function resetAll() {
   pauseAll();
@@ -951,47 +1023,57 @@ function isFullscreen() {
 }
 
 function toggleFS() {
+  // Already in CSS fullscreen → exit
+  if (_cssFS) { toggleCSSFullscreen(); return; }
+
+  // Already in native fullscreen → exit
   if (isFullscreen()) {
-    // Exit fullscreen
     const fn = document.exitFullscreen || document.webkitExitFullscreen ||
                document.mozCancelFullScreen || document.msExitFullscreen;
     if (fn) fn.call(document);
     return;
   }
-  // Enter fullscreen — try multiple elements, no .catch() toast on Android
-  const targets = [document.documentElement, $('prompterArea'), document.body];
-  for (const el of targets) {
-    const fn = el.requestFullscreen || el.webkitRequestFullscreen ||
-               el.mozRequestFullScreen || el.msRequestFullscreen;
-    if (fn) {
-      // Android tab: requestFullscreen must be triggered by user gesture
-      // Remote se aane pe gesture nahi hoti — silently ignore, no error toast
-      const p = fn.call(el);
-      if (p && p.catch) p.catch(()=>{}); // silent fail, no toast
-      return;
-    }
+
+  // Not in fullscreen → enter
+  // Try native API on documentElement
+  const el = document.documentElement;
+  const fn = el.requestFullscreen || el.webkitRequestFullscreen ||
+             el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (fn) {
+    const p = fn.call(el);
+    if (p && p.catch) p.catch(() => {
+      // Native failed silently (e.g. Android remote no user gesture)
+      // Use CSS fallback only if still not in fullscreen
+      if (!isFullscreen() && !_cssFS) toggleCSSFullscreen();
+    });
+  } else {
+    // Browser has no fullscreen API at all → CSS fallback
+    toggleCSSFullscreen();
   }
-  // Fallback: CSS-based fake fullscreen for devices that dont support API
-  toggleCSSFullscreen();
 }
 
-// CSS Fullscreen fallback — sidebar hide, prompter takes full screen
+// CSS Fullscreen fallback
 let _cssFS = false;
 function toggleCSSFullscreen() {
   _cssFS = !_cssFS;
-  const pa = $('prompterArea');
-  const sb = $('sidebar');
-  const tb = document.querySelector('.topbar');
+  const pa  = $('prompterArea');
+  const sb  = $('sidebar');
+  const tb  = document.querySelector('.topbar');
+  const fab = $('fabMenu');
   if (_cssFS) {
     pa.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#000;display:flex;flex-direction:column;';
     sb.style.display = 'none';
     tb.style.display = 'none';
-    toast('Fullscreen ON (CSS mode)');
+    sb.classList.remove('open');
+    sb.classList.remove('fs-overlay');
+    fab.style.display = 'flex'; // show floating ☰ button
   } else {
     pa.style.cssText = '';
     sb.style.display = '';
     tb.style.display = '';
-    toast('Fullscreen OFF');
+    sb.classList.remove('fs-overlay');
+    sb.classList.remove('open');
+    fab.style.display = 'none';
     checkMobile();
   }
   if (S.mode === 't') setTimeout(positionTickerLine, 50);
@@ -1001,20 +1083,22 @@ function toggleCSSFullscreen() {
 ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','msfullscreenchange'].forEach(ev => {
   document.addEventListener(ev, () => {
     const inFS = isFullscreen();
-    const sb = $('sidebar');
-    const tb = document.querySelector('.topbar');
+    const sb   = $('sidebar');
+    const tb   = document.querySelector('.topbar');
     if (inFS) {
-      // Fullscreen: hide sidebar and topbar
-      sb.setAttribute('data-fs-hidden', sb.style.display || '');
-      tb.setAttribute('data-fs-hidden', tb.style.display || '');
+      // Enter fullscreen — hide sidebar & topbar
       sb.style.display = 'none';
       tb.style.display = 'none';
+      sb.classList.remove('open'); // close if open
+      sb.classList.remove('fs-overlay'); // reset overlay state
+      $('fabMenu').style.display = 'flex'; // show floating ☰
     } else {
-      // Exit fullscreen: restore
-      sb.style.display = sb.getAttribute('data-fs-hidden') || '';
-      tb.style.display = tb.getAttribute('data-fs-hidden') || '';
-      sb.removeAttribute('data-fs-hidden');
-      tb.removeAttribute('data-fs-hidden');
+      // Exit fullscreen — restore everything
+      sb.style.display = '';
+      tb.style.display = '';
+      sb.classList.remove('fs-overlay');
+      sb.classList.remove('open');
+      $('fabMenu').style.display = 'none';
       checkMobile();
       if (S.mode === 't') setTimeout(positionTickerLine, 50);
     }
@@ -1027,37 +1111,34 @@ function toggleCSSFullscreen() {
 document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
   switch(e.code) {
-    // OK / Stop
     case 'Space': case 'Enter': case 'NumpadEnter':
       e.preventDefault(); togglePlay(); break;
-    // Y → Fullscreen
-    case 'KeyY': case 'KeyF':
+    case 'KeyF':
       e.preventDefault(); toggleFS(); break;
-    // B → Mirror
+    // Y = back to start (hold to rewind)
+    case 'KeyY':
+      e.preventDefault(); if (!e.repeat) startRewind(); break;
     case 'KeyB': case 'KeyM':
       $('mirrorTog').checked = !$('mirrorTog').checked; onMirror(); break;
-    // A → Back to start (script beginning pe le jao, playing state same rahe)
+    // A — hold to rewind, release to stop
     case 'KeyA':
-      backToStart(); break;
-    // X → Color
+      e.preventDefault(); if (!e.repeat) startRewind(); break;
     case 'KeyX': case 'KeyC':
       applyColor((S.colorIdx+1)%COLORS.length); break;
-    // Speed
-    case 'ArrowUp':   e.preventDefault(); setSpeed(S.speed+0.1); break;
-    case 'ArrowDown': e.preventDefault(); setSpeed(S.speed-0.1); break;
-    // Font
+    case 'ArrowUp':    e.preventDefault(); setSpeed(S.speed+0.1); break;
+    case 'ArrowDown':  e.preventDefault(); setSpeed(S.speed-0.1); break;
     case 'ArrowRight': { e.preventDefault(); const nv=Math.min(200,S.fontSize+2); $('fontSlider').value=nv; setFont(nv); break; }
     case 'ArrowLeft':  { e.preventDefault(); const nv=Math.max(20, S.fontSize-2); $('fontSlider').value=nv; setFont(nv); break; }
-    // Reset
     case 'KeyR': resetAll(); break;
-    // Mode switch
     case 'KeyT': setMode(S.mode==='v'?'t':'v'); break;
-    // Escape → exit fullscreen / close sidebar
     case 'Escape':
-      if (document.fullscreenElement) toggleFS();
-      else if ($('sidebar').classList.contains('open')) toggleSidebar();
+      // Escape only closes sidebar if open — does NOT exit fullscreen
+      if ($('sidebar').classList.contains('open')) toggleSidebar();
       break;
   }
+});
+document.addEventListener('keyup', e => {
+  if (e.code === 'KeyA' || e.code === 'KeyY') stopRewind();
 });
 
 // ═══════════════════════════════════════════════
@@ -1082,7 +1163,11 @@ function gpLoop() {
     // 0=A, 1=B, 2=X, 3=Y, 8=Select/Back, 9=Start
     btn(9,  togglePlay);                        // Start = Play/Stop
     btn(8,  resetAll);                          // Select/Back = Reset
-    btn(0,  backToStart); // A = Back to start
+    // A = Rewind (hold) — press starts rewind, release stops
+    const aPressed = gp.buttons[0]?.pressed;
+    if (aPressed && !p[0]) startRewind();
+    if (!aPressed && p[0]) stopRewind();
+    p[0] = aPressed;
     btn(1,  ()=>{ $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); });  // B = Mirror
     btn(3,  toggleFS);                          // Y = Fullscreen
     btn(2,  ()=>applyColor((S.colorIdx+1)%COLORS.length)); // X = Color
@@ -1128,11 +1213,12 @@ async function toggleBLE() {
       try { device = await navigator.bluetooth.requestDevice({filters:[{namePrefix:'FEELWORLD'}],optionalServices:[SVC_UUID]}); }
       catch { device = await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC_UUID]}); }
     } else {
-      try { device = await navigator.bluetooth.requestDevice({filters:[{services:[SVC_UUID]},{namePrefix:'FEELWORLD'}],optionalServices:[SVC_UUID]}); }
-      catch(fe) {
-        if(fe.name==='NotFoundError') device = await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC_UUID]});
-        else throw fe;
-      }
+      // PC: acceptAllDevices — user manually selects device from browser popup
+      // filters:[services] hides FEELWORLD remote on many PC browsers (doesn't advertise)
+      device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [SVC_UUID]
+      });
     }
     S.bleDevice = device;
     device.addEventListener('gattserverdisconnected', onBLEDisc);
@@ -1177,6 +1263,15 @@ function setBLEStatus(st, name) {
 // ═══════════════════════════════════════════════
 //  BLE DATA — Android APK mapping + Y button
 // ═══════════════════════════════════════════════
+// BLE Rewind Hold — remote hold pe repeated packets aate hain
+// Last packet ke 250ms baad stopRewind call hota hai
+let _bleRewindTimer = null;
+function bleRewindHold() {
+  if (_bleRewindTimer === null) startRewind(); // first packet = start rewind
+  else clearTimeout(_bleRewindTimer);           // subsequent = keep alive
+  _bleRewindTimer = setTimeout(()=>{ _bleRewindTimer=null; stopRewind(); }, 250);
+}
+
 function onBLEData(ev) {
   const raw = new Uint8Array(ev.target.value.buffer);
   const d   = raw.slice(2);
@@ -1188,14 +1283,14 @@ function onBLEData(ev) {
     switch(d[4]) {
       case 0x10: togglePlay(); break;
       case 0x40: applyColor((S.colorIdx+1)%COLORS.length); break;
-      case 0x80: toggleFS(); break;    // Lock btn → Fullscreen
+      case 0x80: bleRewindHold(); break; // Y btn → back to start (hold)
       case 0x20: resetAll(); break;    // Back btn → Reset
     }
     switch(d[5]) {
       case 0x02: $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); break;
-      case 0x08: $('loopTog').checked=!$('loopTog').checked; toast('Loop: '+($('loopTog').checked?'ON':'OFF')); break;
+      case 0x08: bleRewindHold(); break; // A button hold = rewind
       case 0x04: setMode(S.mode==='v'?'t':'v'); break;
-      // Y button candidates (debug log se confirm karo actual value)
+      // Fullscreen candidates — one of these is the FS button on remote
       case 0x01: case 0x10: case 0x20: case 0x40: toggleFS(); break;
     }
     // d[3] bhi check — kuch remotes yahan bhejte hain
