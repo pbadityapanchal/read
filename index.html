@@ -39,7 +39,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .help-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 /* ── LAYOUT ── */
-.layout{display:flex;height:calc(100vh - 52px);overflow:hidden;}
+.layout{display:flex;height:calc(100vh - 52px);overflow:hidden;min-height:0;}
 
 /* ── SIDEBAR ── */
 .sidebar{
@@ -164,6 +164,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* safe area for mobile notch */
   padding-bottom:env(safe-area-inset-bottom, 0px);
   min-height:56px;
+  /* Never hide, never overflow-clip */
+  overflow:visible;
+  width:100%;
+  box-sizing:border-box;
 }
 .cbtn{
   width:44px;height:44px;border-radius:50%;flex-shrink:0;
@@ -180,7 +184,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   background:var(--accent);border-color:var(--accent);color:#000;font-size:20px;
 }
 .cbtn.play:hover{opacity:.85;}
-.prog-area{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
+.prog-area{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;}
 .prog-wrap{height:4px;background:#1a1a1a;border-radius:2px;cursor:pointer;position:relative;}
 .prog-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;}
 .time-row{display:flex;justify-content:space-between;align-items:center;}
@@ -209,33 +213,144 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);}
 
-/* ── RESPONSIVE MOBILE ── */
-/* ── TABLET (641–1024px) ── */
-@media(max-width:1024px) and (min-width:641px){
-  :root{ --sb:260px; }
+/* ══════════════════════════════════════════
+   FULLY RESPONSIVE — Mobile / Tablet / PC /
+   TV / Projector / Digital Board / Fullscreen
+   ══════════════════════════════════════════ */
+
+/* ── ctrl-bar always visible, never overflow ── */
+.ctrl-bar{
+  position:relative;z-index:40;
+  flex-shrink:0!important;
+  display:flex!important;
+  visibility:visible!important;
+  width:100%!important;
+  box-sizing:border-box;
 }
-/* ── MOBILE (≤640px) ── */
+
+/* ── LARGE SCREENS: TV, Projector, 4K, Digital Board (≥1921px) ── */
+@media(min-width:1921px){
+  :root{ --sb:360px; }
+  .topbar{ height:64px; padding:0 28px; }
+  .brand{ font-size:24px; }
+  .ctrl-bar{ min-height:72px; padding:0 24px; gap:16px; }
+  .cbtn{ width:56px; height:56px; font-size:22px; }
+  .cbtn.play{ width:64px; height:64px; font-size:26px; }
+  .prog-wrap{ height:6px; }
+  .timer{ font-size:15px; }
+  .eta-inline{ font-size:13px; }
+  .m-tab{ font-size:11px; padding:5px 14px; }
+}
+
+/* ── DESKTOP / LARGE LAPTOP (1025–1920px) ── */
+@media(min-width:1025px) and (max-width:1920px){
+  :root{ --sb:300px; }
+  .ctrl-bar{ min-height:56px; }
+}
+
+/* ── TABLET LANDSCAPE / SMALL LAPTOP (641–1024px) ── */
+@media(max-width:1024px) and (min-width:641px){
+  :root{ --sb:240px; }
+  .topbar{ padding:0 10px; gap:6px; }
+  .brand{ font-size:15px; }
+  .ctrl-bar{ min-height:52px; padding:0 10px; gap:6px; }
+  .cbtn{ width:40px; height:40px; font-size:15px; }
+  .cbtn.play{ width:46px; height:46px; font-size:18px; }
+  .timer{ font-size:10px; }
+  .eta-inline{ font-size:9px; }
+}
+
+/* ── MOBILE PORTRAIT + SMALL TABLET (≤640px) ── */
 @media(max-width:640px){
+  :root{ --sb:min(280px,85vw); }
+
+  /* Sidebar slides in from left as overlay */
   .sidebar{
     position:fixed;top:52px;left:0;bottom:0;z-index:200;
-    width:min(280px,85vw);transform:translateX(-100%);
+    width:var(--sb);transform:translateX(-100%);
     box-shadow:4px 0 20px rgba(0,0,0,.7);
   }
-  .sidebar.open{transform:translateX(0);}
-  /* Overlay backdrop when sidebar open on mobile */
+  .sidebar.open{ transform:translateX(0); }
+  /* Dark backdrop behind open sidebar */
   .sidebar.open::after{
-    content:'';position:fixed;top:0;left:min(280px,85vw);right:0;bottom:0;
+    content:'';position:fixed;top:0;left:var(--sb);right:0;bottom:0;
     background:rgba(0,0,0,.5);z-index:-1;
   }
-  .topbar{padding:0 8px;gap:5px;}
-  .brand{font-size:14px;letter-spacing:2px;}
-  .ble-btn span{display:none;}
-  .ble-btn{padding:5px 8px;}
-  .ctrl-bar{padding:0 8px;gap:6px;min-height:52px;}
-  .cbtn{width:40px;height:40px;font-size:15px;}
-  .cbtn.play{width:46px;height:46px;font-size:18px;}
-  .timer{font-size:10px;}
-  .eta-inline{font-size:9px;}
+
+  .topbar{ padding:0 8px; gap:4px; height:48px; }
+  .layout{ height:calc(100vh - 48px); }
+  .brand{ font-size:13px; letter-spacing:2px; }
+
+  /* Hide BLE text on tiny screens, keep icon */
+  .ble-btn span{ display:none; }
+  .ble-btn{ padding:5px 7px; }
+
+  /* Hide ETA on very small — keep timer */
+  .eta-inline{ display:none; }
+
+  .ctrl-bar{
+    padding:0 8px;gap:6px;
+    min-height:52px;
+    padding-bottom:max(env(safe-area-inset-bottom,0px),4px);
+  }
+  .cbtn{ width:40px; height:40px; font-size:15px; }
+  .cbtn.play{ width:46px; height:46px; font-size:18px; }
+  .timer{ font-size:10px; letter-spacing:0; }
+  .prog-wrap{ height:5px; }
+}
+
+/* ── VERY SMALL PHONES (≤380px) ── */
+@media(max-width:380px){
+  .topbar{ padding:0 6px; gap:3px; height:44px; }
+  .layout{ height:calc(100vh - 44px); }
+  .brand{ font-size:12px; }
+  .mode-tabs{ display:none; } /* hide mode tabs — use sidebar instead */
+  .ctrl-bar{ padding:0 6px; gap:4px; min-height:48px; }
+  .cbtn{ width:36px; height:36px; font-size:14px; }
+  .cbtn.play{ width:42px; height:42px; font-size:16px; }
+  .timer{ font-size:9px; }
+}
+
+/* ══════════════════════════════════════════
+   FULLSCREEN — ctrl-bar ALWAYS at bottom,
+   always visible, all devices
+   ══════════════════════════════════════════ */
+
+/* Native fullscreen: prompter-area fills screen,
+   ctrl-bar sticks to bottom inside flex column */
+:fullscreen .ctrl-bar,
+:-webkit-full-screen .ctrl-bar,
+:-moz-full-screen .ctrl-bar,
+:-ms-fullscreen .ctrl-bar {
+  position:sticky!important;
+  bottom:0!important;
+  width:100%!important;
+  display:flex!important;
+  z-index:9990!important;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),6px)!important;
+}
+
+/* CSS fullscreen (our _cssFS fallback) */
+.css-fs-active .ctrl-bar {
+  position:fixed!important;
+  bottom:0!important;
+  left:0!important;
+  right:0!important;
+  z-index:9990!important;
+  display:flex!important;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),6px)!important;
+}
+
+/* In CSS fullscreen, prompter content needs bottom padding so text isn't hidden behind ctrl-bar */
+.css-fs-active .v-mode,
+.css-fs-active .t-mode {
+  padding-bottom:60px;
+}
+
+/* FAB menu button — always on top in fullscreen */
+#fabMenu{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
 </style>
 </head>
@@ -431,9 +546,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
           <span class="kbadge">T / Mode</span>
           <span class="kact">V↔Ticker</span>
         </div>
-        <div class="key-item">
-          <span class="kbadge">B4:0x10</span>
-          <span class="kact">BLE Play</span>
+        <div class="key-item" style="border-color:rgba(198,236,49,.4);">
+          <span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">&#9646;&#9646; / &#9654;</span>
+          <span class="kact">Play / Pause</span>
+        </div>
+        <div class="key-item" style="border-color:rgba(255,100,100,.4);">
+          <span class="kbadge" style="background:rgba(255,100,100,.2);color:#ff6464;">&#x21BA; / R</span>
+          <span class="kact">Reset</span>
         </div>
       </div>
 
@@ -504,7 +623,7 @@ FEELWORLD remote ya keyboard se full control milega.</div>
 <div class="toast-c" id="toastC"></div>
 
 <!-- Floating ☰ button — only visible in fullscreen, opens sidebar -->
-<div id="fabMenu" onclick="toggleSidebar()" style="
+<div id="fabMenu" onclick="toggleFSMenu()" style="
   display:none; position:fixed; top:12px; left:12px; z-index:9999;
   width:42px; height:42px; border-radius:8px;
   background:rgba(17,17,21,0.85); border:1px solid var(--border);
@@ -1068,18 +1187,26 @@ function toggleCSSFullscreen() {
   const pa  = $('prompterArea');
   const sb  = $('sidebar');
   const tb  = document.querySelector('.topbar');
+  const cb  = $('ctrlBar');
   const fab = $('fabMenu');
   if (_cssFS) {
-    pa.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#000;display:flex;flex-direction:column;';
+    // Enter CSS fullscreen
+    document.body.classList.add('css-fs-active');
+    pa.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#000;display:flex;flex-direction:column;padding-bottom:0;';
     sb.style.display = 'none';
     tb.style.display = 'none';
     sb.classList.remove('open');
     sb.classList.remove('fs-overlay');
-    fab.style.display = 'flex'; // show floating ☰ button
+    // ctrl-bar: fixed at bottom, full width
+    cb.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9990;display:flex;';
+    fab.style.display = 'flex';
   } else {
+    // Exit CSS fullscreen
+    document.body.classList.remove('css-fs-active');
     pa.style.cssText = '';
     sb.style.display = '';
     tb.style.display = '';
+    cb.style.cssText = '';
     sb.classList.remove('fs-overlay');
     sb.classList.remove('open');
     fab.style.display = 'none';
@@ -1094,25 +1221,58 @@ function toggleCSSFullscreen() {
     const inFS = isFullscreen();
     const sb   = $('sidebar');
     const tb   = document.querySelector('.topbar');
+    const cb   = $('ctrlBar');
     if (inFS) {
-      // Enter fullscreen — hide sidebar & topbar
+      // Enter native fullscreen — hide sidebar & topbar, keep ctrl-bar
       sb.style.display = 'none';
       tb.style.display = 'none';
-      sb.classList.remove('open'); // close if open
-      sb.classList.remove('fs-overlay'); // reset overlay state
-      $('fabMenu').style.display = 'flex'; // show floating ☰
+      sb.classList.remove('open');
+      sb.classList.remove('fs-overlay');
+      // ctrl-bar stays inside prompter-area flex column — no override needed
+      // but ensure it's visible
+      cb.style.display = 'flex';
+      $('fabMenu').style.display = 'flex';
     } else {
-      // Exit fullscreen — restore everything
+      // Exit native fullscreen — restore everything
       sb.style.display = '';
       tb.style.display = '';
+      cb.style.cssText = '';
       sb.classList.remove('fs-overlay');
       sb.classList.remove('open');
       $('fabMenu').style.display = 'none';
+      document.body.classList.remove('css-fs-active');
       checkMobile();
       if (S.mode === 't') setTimeout(positionTickerLine, 50);
     }
   });
 });
+
+// ═══════════════════════════════════════════════
+//  FAB MENU BUTTON (☰ in fullscreen)
+// ═══════════════════════════════════════════════
+function toggleFSMenu() {
+  const sb   = $('sidebar');
+  const inFS = isFullscreen() || _cssFS;
+
+  if (!inFS) {
+    // Not in fullscreen — should not happen, but exit CSS FS just in case
+    toggleFS();
+    return;
+  }
+
+  const isOpen = sb.classList.contains('open');
+
+  if (isOpen) {
+    // Sidebar open hai — pehle sidebar close, phir fullscreen exit
+    sb.classList.remove('open');
+    sb.classList.remove('fs-overlay');
+    setTimeout(() => toggleFS(), 50);
+  } else {
+    // Sidebar band hai — overlay mode mein open karo, fullscreen mein raho
+    sb.classList.add('fs-overlay');
+    sb.classList.add('open');
+  }
+}
 
 // ═══════════════════════════════════════════════
 //  KEYBOARD — full mapping: OK=Space, A=Enter, B=M, Y=F/Y, X=C, gamepad keys
@@ -1300,15 +1460,6 @@ function onBLEData(ev) {
       case 0x02: $('mirrorTog').checked=!$('mirrorTog').checked; onMirror(); break;
       case 0x08: bleRewindHold(); break; // A button hold = rewind
       case 0x04: setMode(S.mode==='v'?'t':'v'); break;
-      // Fullscreen candidates — one of these is the FS button on remote
-      case 0x01: case 0x10: case 0x20: case 0x40: toggleFS(); break;
-    }
-    // d[3] bhi check — kuch remotes yahan bhejte hain
-    if(d[3] && d[3]!==0x00) {
-      switch(d[3]) {
-        case 0x01: case 0x02: case 0x04: case 0x08:
-        case 0x10: case 0x40: case 0x80: toggleFS(); break;
-      }
     }
   } else {
     // JOYSTICK MODE
