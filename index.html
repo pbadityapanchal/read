@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>FEELWORLD Teleprompter</title>
+<title>PBworld Teleprompter</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -259,6 +259,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   position:absolute;top:0;bottom:0;
   background:rgba(255,255,255,.025);pointer-events:none;z-index:11;
 }
+/* 4. Bottom line — yellow horizontal, drag up/down */
+#vBotLine{
+  position:absolute;left:0;right:0;height:3px;
+  background:rgba(255,210,0,.6);
+  cursor:ns-resize;pointer-events:all;
+}
+#vBotLine::after{
+  content:'◀ BOT ▶';
+  position:absolute;right:10px;top:-16px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;
+  color:rgba(255,210,0,.55);pointer-events:none;white-space:nowrap;
+}
 /* Scrollbar */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -409,7 +421,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="brand">FEEL<span>WORLD</span></div>
+  <div class="brand">PB<span>world</span></div>
 
   <!-- Mobile: sidebar toggle -->
   <button class="btn-g" id="sidebarToggle" onclick="toggleSidebar()" style="padding:5px 10px;font-size:16px;" title="Menu">&#9776;</button>
@@ -518,20 +530,53 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <!-- Vertical Markers Controls (shown in v mode) -->
     <div class="ticker-controls" id="vertCtrlSection">
       <div class="lbl">Vert Markers</div>
+
+      <!-- Reading Line (Green - horizontal) -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(198,236,49,.8);letter-spacing:1px;margin-bottom:5px;">&#9135; READING LINE</div>
       <div class="ctrl-row">
-        <div class="ctrl-lbl" style="color:rgba(198,236,49,.9);">&#9135; Read Line</div>
+        <div class="ctrl-lbl" style="color:rgba(198,236,49,.9);font-size:10px;">Y Position</div>
         <input type="range" id="vReadSlider" min="2" max="98" value="50" oninput="setVRead(this.value)">
         <div class="ctrl-val" id="vReadVal" style="color:rgba(198,236,49,.9);">50%</div>
       </div>
-      <div class="ctrl-row">
-        <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);">&#9474; L Marker</div>
-        <input type="range" id="vMarkLSlider" min="0" max="98" value="5" oninput="setVMarkL(this.value)">
+      <div class="tog-row">
+        <div class="tog-txt" style="font-size:10px;color:#aaa;">&#9650; Upar text</div>
+        <label class="tog"><input type="checkbox" id="vReadAbove" checked onchange="applyVClip()"><span class="sl"></span></label>
+      </div>
+      <div class="tog-row" style="margin-bottom:10px;">
+        <div class="tog-txt" style="font-size:10px;color:#aaa;">&#9660; Neeche text</div>
+        <label class="tog"><input type="checkbox" id="vReadBelow" checked onchange="applyVClip()"><span class="sl"></span></label>
+      </div>
+
+      <!-- L Margin (Red - clips text on left, text starts from here) -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(255,90,90,.8);letter-spacing:1px;margin-bottom:5px;">&#9474; LEFT CLIP MARGIN</div>
+      <div class="ctrl-row" style="margin-bottom:10px;">
+        <div class="ctrl-lbl" style="color:rgba(255,90,90,.9);font-size:10px;">Position</div>
+        <input type="range" id="vMarkLSlider" min="0" max="45" value="5" oninput="setVMarkL(this.value)">
         <div class="ctrl-val" id="vMarkLVal" style="color:rgba(255,90,90,.9);">5%</div>
       </div>
-      <div class="ctrl-row">
-        <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);">&#9474; R Marker</div>
-        <input type="range" id="vMarkRSlider" min="2" max="100" value="95" oninput="setVMarkR(this.value)">
+
+      <!-- R Margin (Blue - clips text on right, text ends here) -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(90,180,255,.8);letter-spacing:1px;margin-bottom:5px;">&#9474; RIGHT CLIP MARGIN</div>
+      <div class="ctrl-row" style="margin-bottom:10px;">
+        <div class="ctrl-lbl" style="color:rgba(90,180,255,.9);font-size:10px;">Position</div>
+        <input type="range" id="vMarkRSlider" min="55" max="100" value="95" oninput="setVMarkR(this.value)">
         <div class="ctrl-val" id="vMarkRVal" style="color:rgba(90,180,255,.9);">95%</div>
+      </div>
+
+      <!-- Bottom Line (Yellow - horizontal) -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:rgba(255,210,0,.8);letter-spacing:1px;margin-bottom:5px;">&#9135; BOTTOM LINE</div>
+      <div class="ctrl-row">
+        <div class="ctrl-lbl" style="color:rgba(255,210,0,.9);font-size:10px;">Y Position</div>
+        <input type="range" id="vBotSlider" min="2" max="98" value="80" oninput="setVBot(this.value)">
+        <div class="ctrl-val" id="vBotVal" style="color:rgba(255,210,0,.9);">80%</div>
+      </div>
+      <div class="tog-row">
+        <div class="tog-txt" style="font-size:10px;color:#aaa;">&#9650; Upar text</div>
+        <label class="tog"><input type="checkbox" id="vBotAbove" checked onchange="applyVClip()"><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <div class="tog-txt" style="font-size:10px;color:#aaa;">&#9660; Neeche text</div>
+        <label class="tog"><input type="checkbox" id="vBotBelow" checked onchange="applyVClip()"><span class="sl"></span></label>
       </div>
     </div>
 
@@ -572,58 +617,94 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <!-- Key Map -->
     <div class="remote-map">
       <div class="lbl">Remote / Keyboard / Gamepad</div>
-      <div class="key-grid">
-        <div class="key-item" style="border-color:rgba(198,236,49,.4);">
-          <span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">OK / Space</span>
-          <span class="kact">Stop / Play</span>
+
+      <!-- COLORED BUTTONS (A B X Y) -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:1px;margin:4px 0 5px;">&#128308; COLORED BUTTONS</div>
+      <div class="key-grid" style="margin-bottom:6px;">
+        <div class="key-item" style="border-color:rgba(255,100,100,.4);">
+          <span class="kbadge" style="background:rgba(255,100,100,.2);color:#ff6464;">Y</span>
+          <span class="kact">Rewind Toggle</span>
         </div>
         <div class="key-item" style="border-color:rgba(255,180,0,.4);">
-          <span class="kbadge" style="background:rgba(255,180,0,.2);color:#ffb400;">A / Enter</span>
-          <span class="kact">Back to Start</span>
+          <span class="kbadge" style="background:rgba(255,180,0,.2);color:#ffb400;">A</span>
+          <span class="kact">Menu Hide/Show</span>
         </div>
         <div class="key-item" style="border-color:rgba(100,180,255,.4);">
-          <span class="kbadge" style="background:rgba(100,180,255,.2);color:#64b4ff;">B / M</span>
+          <span class="kbadge" style="background:rgba(100,180,255,.2);color:#64b4ff;">B</span>
           <span class="kact">Mirror</span>
         </div>
-        <div class="key-item" style="border-color:rgba(255,100,100,.4);">
-          <span class="kbadge" style="background:rgba(255,100,100,.2);color:#ff6464;">Y / F</span>
-          <span class="kact">Fullscreen</span>
-        </div>
         <div class="key-item" style="border-color:rgba(180,100,255,.4);">
-          <span class="kbadge" style="background:rgba(180,100,255,.2);color:#b464ff;">X / C</span>
+          <span class="kbadge" style="background:rgba(180,100,255,.2);color:#b464ff;">X</span>
           <span class="kact">Next Color</span>
         </div>
+      </div>
+      <!-- OTHER REMOTE KEYS -->
+      <div class="key-grid" style="margin-bottom:10px;">
+        <div class="key-item" style="border-color:rgba(198,236,49,.4);">
+          <span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">OK</span>
+          <span class="kact">Play / Pause</span>
+        </div>
         <div class="key-item">
-          <span class="kbadge">&#x2191; / JOY&#x2191;</span>
+          <span class="kbadge">Back</span>
+          <span class="kact">Reset</span>
+        </div>
+      </div>
+
+      <!-- JOYSTICK -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;">&#127918; JOYSTICK</div>
+      <div class="key-grid" style="margin-bottom:10px;">
+        <div class="key-item">
+          <span class="kbadge">JOY &#x2191;</span>
           <span class="kact">Speed +</span>
         </div>
         <div class="key-item">
-          <span class="kbadge">&#x2193; / JOY&#x2193;</span>
+          <span class="kbadge">JOY &#x2193;</span>
           <span class="kact">Speed −</span>
         </div>
         <div class="key-item">
-          <span class="kbadge">&#x2192; / JOY&#x2192;</span>
+          <span class="kbadge">JOY &#x2192;</span>
           <span class="kact">Font +</span>
         </div>
         <div class="key-item">
-          <span class="kbadge">&#x2190; / JOY&#x2190;</span>
+          <span class="kbadge">JOY &#x2190;</span>
           <span class="kact">Font −</span>
         </div>
-        <div class="key-item">
-          <span class="kbadge">R / Back</span>
-          <span class="kact">Reset</span>
-        </div>
-        <div class="key-item">
-          <span class="kbadge">T / Mode</span>
-          <span class="kact">V↔Ticker</span>
-        </div>
+      </div>
+
+      <!-- KEYBOARD -->
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;">&#9000; KEYBOARD</div>
+      <div class="key-grid" style="margin-bottom:4px;">
         <div class="key-item" style="border-color:rgba(198,236,49,.4);">
-          <span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">&#9646;&#9646; / &#9654;</span>
+          <span class="kbadge" style="background:rgba(198,236,49,.3);color:#000;">Space</span>
           <span class="kact">Play / Pause</span>
         </div>
-        <div class="key-item" style="border-color:rgba(255,100,100,.4);">
-          <span class="kbadge" style="background:rgba(255,100,100,.2);color:#ff6464;">&#x21BA; / R</span>
+        <div class="key-item">
+          <span class="kbadge">R</span>
           <span class="kact">Reset</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">F</span>
+          <span class="kact">Fullscreen</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">M</span>
+          <span class="kact">Mirror</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">T</span>
+          <span class="kact">V ↔ Ticker</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">C</span>
+          <span class="kact">Next Color</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">&#x2191; &#x2193;</span>
+          <span class="kact">Speed ±</span>
+        </div>
+        <div class="key-item">
+          <span class="kbadge">&#x2192; &#x2190;</span>
+          <span class="kact">Font ±</span>
         </div>
       </div>
 
@@ -646,19 +727,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="v-mode" id="vMode">
       <div class="v-fade-t" id="vFadeT"></div>
       <div class="v-fade-b" id="vFadeB"></div>
-      <!-- 3 independent markers overlay -->
+      <!-- Markers overlay -->
       <div id="vMarkerWrap">
         <div id="vZone"></div>
         <div id="vReadLine" style="top:50%;"></div>
+        <div id="vBotLine" style="top:80%;"></div>
         <div id="vMarkL" style="left:5%;"></div>
         <div id="vMarkR" style="left:95%;"></div>
+        <!-- Black clip panels — hide text outside zone -->
+        <div id="vClipAboveRead" style="position:absolute;left:0;right:0;top:0;height:0;background:#000;pointer-events:none;z-index:18;transition:height .1s;"></div>
+        <div id="vClipBelowBot"  style="position:absolute;left:0;right:0;bottom:0;height:0;background:#000;pointer-events:none;z-index:18;transition:height .1s;"></div>
+        <div id="vClipBelowRead" style="position:absolute;left:0;right:0;height:0;background:#000;pointer-events:none;z-index:18;transition:height .1s;"></div>
+        <div id="vClipAboveBot"  style="position:absolute;left:0;right:0;height:0;background:#000;pointer-events:none;z-index:18;transition:height .1s;"></div>
+        <!-- Left/Right clip panels — text ko L/R markers ke andar rakhte hain -->
+        <div id="vClipLeft"  style="position:absolute;top:0;bottom:0;left:0;width:5%;background:#000;pointer-events:none;z-index:19;transition:width .05s;"></div>
+        <div id="vClipRight" style="position:absolute;top:0;bottom:0;right:0;width:5%;background:#000;pointer-events:none;z-index:19;transition:width .05s;"></div>
       </div>
       <div id="vScroll" style="will-change:transform;padding:50vh 8% 50vh;">
         <div class="v-text" id="vText">Apna script sidebar mein likho aur Load dabao.
 
 Ticker tab se right-to-left ticker mode on karo.
 
-FEELWORLD remote ya keyboard se full control milega.</div>
+PBworld remote ya keyboard se full control milega.</div>
       </div>
     </div>
 
@@ -1051,106 +1141,138 @@ function updateMiniPreview() {
 })();
 
 // ═══════════════════════════════════════════════
-//  VERTICAL MODE — 3 INDEPENDENT MARKERS
+//  VERTICAL MODE — 4 INDEPENDENT MARKERS
 // ═══════════════════════════════════════════════
-// State for vertical markers (% of v-mode height)
-S.vRead = 50;   // horizontal reading line
-S.vMarkL = 5;   // left vertical marker
-S.vMarkR = 95;  // right vertical marker
+// State: % of v-mode dimensions
+S.vRead = 50;   // reading line Y%
+S.vMarkL = 5;   // left margin %  → sets vScroll padding-left
+S.vMarkR = 95;  // right margin % → sets vScroll padding-right
+S.vBot   = 80;  // bottom line Y%
 
+// Reading line — moves marker + applies clip
 function setVRead(pct) {
   S.vRead = Math.max(2, Math.min(98, parseInt(pct)));
   $('vReadSlider').value = S.vRead;
   $('vReadVal').textContent = S.vRead + '%';
   $('vReadLine').style.top = S.vRead + '%';
+  applyVClip();
 }
+
+// Left margin — moves marker AND clips text on left side
 function setVMarkL(pct) {
-  S.vMarkL = Math.max(0, Math.min(S.vMarkR - 2, parseInt(pct)));
+  S.vMarkL = Math.max(0, Math.min(44, parseInt(pct)));
   $('vMarkLSlider').value = S.vMarkL;
   $('vMarkLVal').textContent = S.vMarkL + '%';
   $('vMarkL').style.left = S.vMarkL + '%';
+  // Black clip: marker ke baaye side sab dhak do
+  $('vClipLeft').style.width = S.vMarkL + '%';
+  // vScroll ka left padding bhi update — text marker ke baad se shuru ho
+  $('vScroll').style.paddingLeft = S.vMarkL + '%';
   applyVZone();
 }
+
+// Right margin — moves marker AND clips text on right side
 function setVMarkR(pct) {
-  S.vMarkR = Math.max(S.vMarkL + 2, Math.min(100, parseInt(pct)));
+  S.vMarkR = Math.max(56, Math.min(100, parseInt(pct)));
   $('vMarkRSlider').value = S.vMarkR;
   $('vMarkRVal').textContent = S.vMarkR + '%';
   $('vMarkR').style.left = S.vMarkR + '%';
+  // Black clip: marker ke daaye side sab dhak do
+  $('vClipRight').style.width = (100 - S.vMarkR) + '%';
+  // vScroll ka right padding bhi update — text marker ke pehle khatam ho
+  $('vScroll').style.paddingRight = (100 - S.vMarkR) + '%';
   applyVZone();
 }
+
 function applyVZone() {
   $('vZone').style.left  = S.vMarkL + '%';
   $('vZone').style.width = (S.vMarkR - S.vMarkL) + '%';
 }
 
-// Drag: reading line (up-down)
-(function initVReadDrag() {
-  const el = $('vReadLine');
-  let dragging = false;
-  el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); });
-  el.addEventListener('touchstart', e => { dragging=true; }, {passive:true});
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-    setVRead(pct);
-  });
-  document.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.touches[0].clientY - rect.top) / rect.height) * 100);
-    setVRead(pct);
-  }, {passive:true});
-  const stop = () => { dragging = false; };
-  document.addEventListener('mouseup',  stop);
-  document.addEventListener('touchend', stop);
-})();
+// Bottom line
+function setVBot(pct) {
+  S.vBot = Math.max(2, Math.min(98, parseInt(pct)));
+  $('vBotSlider').value = S.vBot;
+  $('vBotVal').textContent = S.vBot + '%';
+  $('vBotLine').style.top = S.vBot + '%';
+  applyVClip();
+}
 
-// Drag: left vertical marker (left-right)
-(function initVMarkLDrag() {
-  const el = $('vMarkL');
+// Apply black clip panels based on show/hide toggles
+// vReadLine: above=vReadAbove, below=vReadBelow
+// vBotLine:  above=vBotAbove,  below=vBotBelow
+function applyVClip() {
+  const readAbove = $('vReadAbove').checked;
+  const readBelow = $('vReadBelow').checked;
+  const botAbove  = $('vBotAbove').checked;
+  const botBelow  = $('vBotBelow').checked;
+
+  const readPct = S.vRead;  // 0-100
+  const botPct  = S.vBot;
+
+  // Panel above reading line (hides text above it when readAbove=false)
+  $('vClipAboveRead').style.height = readAbove ? '0' : readPct + '%';
+  $('vClipAboveRead').style.top    = '0';
+
+  // Panel between reading line and bot line: controlled by readBelow & botAbove
+  // If readBelow=false OR botAbove=false, hide that zone
+  // Zone: from readPct to botPct
+  const midTop  = Math.min(readPct, botPct);
+  const midBot  = Math.max(readPct, botPct);
+  const hideMid = !readBelow || !botAbove;
+  $('vClipBelowRead').style.top    = midTop + '%';
+  $('vClipBelowRead').style.height = hideMid ? (midBot - midTop) + '%' : '0';
+
+  // Panel below bot line (hides text below bot when botBelow=false)
+  $('vClipBelowBot').style.height  = botBelow ? '0' : (100 - botPct) + '%';
+  $('vClipBelowBot').style.bottom  = '0';
+  $('vClipBelowBot').style.top     = 'auto';
+
+  // vClipAboveBot not needed separately — merged into vClipBelowRead logic
+  $('vClipAboveBot').style.height  = '0';
+}
+
+// ─── Drag helpers ───
+function makeDragV(elId, onMove) {
+  const el = $(elId);
   let dragging = false;
   el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); e.stopPropagation(); });
   el.addEventListener('touchstart', e => { dragging=true; e.stopPropagation(); }, {passive:true});
   document.addEventListener('mousemove', e => {
     if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    setVMarkL(pct);
+    onMove(e.clientX, e.clientY);
   });
   document.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.touches[0].clientX - rect.left) / rect.width) * 100);
-    setVMarkL(pct);
+    onMove(e.touches[0].clientX, e.touches[0].clientY);
   }, {passive:true});
-  const stop = () => { dragging = false; };
-  document.addEventListener('mouseup',  stop);
-  document.addEventListener('touchend', stop);
-})();
+  document.addEventListener('mouseup',  () => { dragging=false; });
+  document.addEventListener('touchend', () => { dragging=false; });
+}
 
-// Drag: right vertical marker (left-right)
-(function initVMarkRDrag() {
-  const el = $('vMarkR');
-  let dragging = false;
-  el.addEventListener('mousedown',  e => { dragging=true; e.preventDefault(); e.stopPropagation(); });
-  el.addEventListener('touchstart', e => { dragging=true; e.stopPropagation(); }, {passive:true});
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    setVMarkR(pct);
-  });
-  document.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const rect = $('vMode').getBoundingClientRect();
-    const pct  = Math.round(((e.touches[0].clientX - rect.left) / rect.width) * 100);
-    setVMarkR(pct);
-  }, {passive:true});
-  const stop = () => { dragging = false; };
-  document.addEventListener('mouseup',  stop);
-  document.addEventListener('touchend', stop);
-})();
+// Reading line — drag up/down
+makeDragV('vReadLine', (cx, cy) => {
+  const rect = $('vMode').getBoundingClientRect();
+  setVRead(Math.round(((cy - rect.top) / rect.height) * 100));
+});
+
+// Left marker — drag left/right (as margin)
+makeDragV('vMarkL', (cx, cy) => {
+  const rect = $('vMode').getBoundingClientRect();
+  setVMarkL(Math.round(((cx - rect.left) / rect.width) * 100));
+});
+
+// Right marker — drag left/right (as margin)
+makeDragV('vMarkR', (cx, cy) => {
+  const rect = $('vMode').getBoundingClientRect();
+  setVMarkR(Math.round(((cx - rect.left) / rect.width) * 100));
+});
+
+// Bottom line — drag up/down
+makeDragV('vBotLine', (cx, cy) => {
+  const rect = $('vMode').getBoundingClientRect();
+  setVBot(Math.round(((cy - rect.top) / rect.height) * 100));
+});
 
 // ═══════════════════════════════════════════════
 //  PLAY / PAUSE — RAF with proper stop
@@ -1158,10 +1280,18 @@ function applyVZone() {
 let _lastToggle = 0;
 function togglePlay() {
   const now = Date.now();
-  if (now - _lastToggle < 250) return;
+  if (now - _lastToggle < 400) return;
   _lastToggle = now;
   S.playing ? pauseAll() : playAll();
 }
+// Mobile pe touch → click double-fire rok: touchstart pe directly call karo aur click suppress karo
+(function(){
+  const btn = $('playBtn');
+  btn.addEventListener('touchstart', function(e){
+    e.preventDefault();   // synthetic click cancel hoga — double-fire nahi
+    togglePlay();
+  }, {passive:false});
+})();
 function playAll() {
   if (S.playing) return;
   S.playing = true;
@@ -1562,11 +1692,11 @@ async function toggleBLE() {
     setBLEStatus('scanning');
     let device;
     if (isAndroid()) {
-      try { device = await navigator.bluetooth.requestDevice({filters:[{namePrefix:'FEELWORLD'}],optionalServices:[SVC_UUID]}); }
+      try { device = await navigator.bluetooth.requestDevice({filters:[{namePrefix:'PBworld'}],optionalServices:[SVC_UUID]}); }
       catch { device = await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC_UUID]}); }
     } else {
       // PC: acceptAllDevices — user manually selects device from browser popup
-      // filters:[services] hides FEELWORLD remote on many PC browsers (doesn't advertise)
+      // filters:[services] hides PBworld remote on many PC browsers (doesn't advertise)
       device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
         optionalServices: [SVC_UUID]
@@ -1689,7 +1819,7 @@ function toast(msg) {
 // ═══════════════════════════════════════════════
 setSpeed(1.0); setFont(52); setMg(8); applyColor(0);
 applyMarkers(); updateMiniPreview(); setMode('v');
-setVRead(50); setVMarkL(5); setVMarkR(95); applyVZone();
+setVRead(50); setVMarkL(5); setVMarkR(95); applyVZone(); setVBot(80); applyVClip();
 if(isAndroid()&&!navigator.bluetooth) setTimeout(()=>toast('Android: ? dabao BLE setup ke liye'),1500);
 window.addEventListener('resize', ()=>{
   checkMobile();
