@@ -193,6 +193,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .eta-inline{font-family:'Space Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap;flex-shrink:0;}
 .eta-inline span{color:#aaa;}
 
+/* ── COUNTDOWN OVERLAY ── */
+#countdownOverlay{
+  display:none;position:absolute;inset:0;z-index:200;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.55);pointer-events:all;
+}
+#countdownOverlay.show{display:flex;}
+#countdownNum{
+  font-family:'Bebas Neue',sans-serif;font-size:160px;line-height:1;
+  color:var(--accent);text-shadow:0 0 60px rgba(198,236,49,.5);
+  animation:cdPulse .85s ease-in-out infinite alternate;
+  text-align:center;
+}
+@keyframes cdPulse{from{transform:scale(1);opacity:1}to{transform:scale(.88);opacity:.7}}
+
+/* ── COUNTDOWN OVERLAY ── */
+@keyframes cdPulse{from{transform:scale(1);opacity:1}to{transform:scale(.88);opacity:.7}}
+
 /* Toast */
 .toast-c{position:fixed;bottom:70px;right:12px;z-index:9999;}
 .toast-m{background:#1a1a20;border:1px solid var(--border);border-left:3px solid var(--accent);color:var(--text);font-size:11px;padding:8px 12px;border-radius:5px;margin-top:5px;font-family:'Space Mono',monospace;animation:tslide .25s ease;max-width:220px;}
@@ -460,6 +478,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <button class="btn-g" onclick="clearScript()">Clear</button>
         <button class="btn-g" onclick="toggleFS()">&#x26F6; Full</button>
         <button class="btn-g" id="sidebarClose" onclick="toggleSidebar()" style="display:none;">✕</button>
+      </div>
+    </div>
+
+    <!-- Start Delay -->
+    <div class="sb">
+      <div class="lbl">Start Delay</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="flex:1;">
+          <input type="range" id="delaySlider" min="0" max="60" value="0" step="1" oninput="setDelay(this.value)" style="width:100%;">
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent);line-height:1;width:52px;text-align:right;" id="delayNum">0s</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-g" onclick="setDelay(0)"  style="padding:3px 7px;font-size:9px;">Off</button>
+        <button class="btn-g" onclick="setDelay(3)"  style="padding:3px 7px;font-size:9px;">3s</button>
+        <button class="btn-g" onclick="setDelay(5)"  style="padding:3px 7px;font-size:9px;">5s</button>
+        <button class="btn-g" onclick="setDelay(10)" style="padding:3px 7px;font-size:9px;">10s</button>
+        <button class="btn-g" onclick="setDelay(15)" style="padding:3px 7px;font-size:9px;">15s</button>
+        <button class="btn-g" onclick="setDelay(30)" style="padding:3px 7px;font-size:9px;">30s</button>
       </div>
     </div>
 
@@ -860,6 +897,11 @@ PBworld remote ya keyboard se full control milega.</div>
     </div>
 
   </div><!-- /prompter -->
+
+  <!-- COUNTDOWN OVERLAY — covers entire prompter area in both modes -->
+  <div id="countdownOverlay" style="position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);pointer-events:all;">
+    <div id="countdownNum" style="font-family:'Bebas Neue',sans-serif;font-size:min(200px,40vw);line-height:1;color:var(--accent);text-shadow:0 0 60px rgba(198,236,49,.5);text-align:center;animation:cdPulse .85s ease-in-out infinite alternate;">0</div>
+  </div>
 
 </div><!-- /layout -->
 
@@ -1588,6 +1630,42 @@ makeDragV('vBotLine', (cx, cy) => {
 });
 
 // ═══════════════════════════════════════════════
+//  START DELAY
+// ═══════════════════════════════════════════════
+S.startDelay = 0; // seconds
+let _cdTimer = null; // countdown interval
+
+function setDelay(v) {
+  S.startDelay = Math.max(0, Math.min(60, parseInt(v)||0));
+  $('delaySlider').value = S.startDelay;
+  $('delayNum').textContent = S.startDelay + 's';
+}
+
+function showCountdown(sec, onDone) {
+  const overlay = $('countdownOverlay');
+  const numEl   = $('countdownNum');
+  let remaining = sec;
+  overlay.style.display = 'flex';
+  numEl.textContent = remaining;
+
+  _cdTimer = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(_cdTimer); _cdTimer = null;
+      overlay.style.display = 'none';
+      onDone();
+    } else {
+      numEl.textContent = remaining;
+    }
+  }, 1000);
+}
+
+function cancelCountdown() {
+  if (_cdTimer !== null) { clearInterval(_cdTimer); _cdTimer = null; }
+  $('countdownOverlay').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
 //  PLAY / PAUSE — RAF with proper stop
 // ═══════════════════════════════════════════════
 let _lastToggle = 0;
@@ -1595,7 +1673,19 @@ function togglePlay() {
   const now = Date.now();
   if (now - _lastToggle < 400) return;
   _lastToggle = now;
-  S.playing ? pauseAll() : playAll();
+
+  // Agar countdown chal raha hai to cancel karo (pause ka kaam)
+  if (_cdTimer !== null) { cancelCountdown(); return; }
+
+  if (S.playing) {
+    pauseAll();
+  } else {
+    if (S.startDelay > 0) {
+      showCountdown(S.startDelay, () => playAll());
+    } else {
+      playAll();
+    }
+  }
 }
 // Mobile pe touch → click double-fire rok: touchstart pe directly call karo aur click suppress karo
 (function(){
@@ -1736,6 +1826,7 @@ function backToStart() {
   setTimeout(()=>{ if(_rewindRAF!==null){cancelAnimationFrame(_rewindRAF);_rewindRAF=null;} }, 0);
 }
 function resetAll() {
+  cancelCountdown();
   pauseAll();
   S.vPos=0; S.tPos=0; S.timer=0;
   $('vScroll').style.transform = 'translateY(0)';
